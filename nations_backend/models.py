@@ -37,9 +37,6 @@ class Nation(models.Model):
     metal = models.IntegerField(default=1_000)
     consumer_goods = models.IntegerField(default=10_000)
 
-    # Factories
-    # factories = relationship("NationFactory", uselist=True, backref="nations")
-
     # Info for ticking
     tax_rate = models.FloatField(default=1.0)
 
@@ -65,3 +62,24 @@ class NationSystem(Enum):
     CAPITALISM = 0
     SOCIALISM = 1
     DICTATORSHIP = 2
+
+class FactoryType(models.Model):
+    name = models.CharField(max_length=24)
+    commodity = models.CharField(max_length=24)
+    production = models.IntegerField(default=5)
+    max_level = models.IntegerField(default=5)
+    current_level = models.IntegerField(default=1)
+
+    def __dict__(self) -> dict:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "commodity": self.commodity,
+            "production": self.production,
+            "max_level": self.max_level,
+            "current_level": self.current_level
+        }
+    
+class NationFactory(models.Model):
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+    factory_type = models.ForeignKey(FactoryType, on_delete=models.CASCADE)
