@@ -19,11 +19,13 @@ from django.urls import path
 
 from .views import (
     signup_user,
+    login_user,
     test_sessions
 )
 
 urlpatterns = [
     path("user/signup", signup_user, name="signup"),
+    path("user/login", login_user, name="login"),
     path("user/test", test_sessions, name="test"),
     path("admin/", admin.site.urls),
 ]

@@ -64,7 +64,12 @@ def login_user(request: HttpRequest) -> JsonResponse:
     login(request, user)
     request.session.save()
 
-    return HttpResponse("hi mom!!")
+    response: JsonResponse = JsonResponse({
+        "status": "success",
+        "details": "Logged in."
+    }, status=200)
+    
+    return response
 
 @require_http_methods(["GET"])
 def user_info(request: HttpRequest) -> JsonResponse:
