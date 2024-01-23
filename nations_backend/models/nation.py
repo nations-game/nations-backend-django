@@ -11,8 +11,6 @@ from django.db.models import (
 
 
 class Nation(Model):
-    class Meta:
-        app_label = "nations_backend"
     
     name = CharField(max_length=24)
     system = IntegerField() # 0 = capitalism, 1 = socialism, 2 = dictatorship

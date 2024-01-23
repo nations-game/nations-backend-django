@@ -9,8 +9,6 @@ from django.db.models import (
 
 
 class FactoryType(Model):
-    class Meta:
-        app_label = "nations_backend"
     
     name = CharField(max_length=24)
     commodity = CharField(max_length=24)
@@ -30,8 +28,5 @@ class FactoryType(Model):
 
 
 class NationFactory(Model):
-    class Meta:
-        app_label = "nations_backend"
-    
     nation = ForeignKey("Nation", on_delete=CASCADE)
     factory_type = ForeignKey(FactoryType, on_delete=CASCADE)
