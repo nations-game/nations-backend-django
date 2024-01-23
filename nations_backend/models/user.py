@@ -6,7 +6,10 @@ from django.db.models import (
 )
 
 
-class User(DjangoUser):    
+class User(DjangoUser):
+    class Meta:
+        app_label = "nations_backend"
+    
     # Nation info
     nation = ForeignKey("Nation", on_delete=CASCADE)
 
