@@ -32,7 +32,8 @@ def signup_user(request: HttpRequest) -> JsonResponse:
     user: User = User.objects.create_user(
         username=username,
         email=email,
-        password=password
+        password=password,
+        nation=None
     )
 
     login(request, user)
@@ -40,7 +41,7 @@ def signup_user(request: HttpRequest) -> JsonResponse:
     
     response: JsonResponse = JsonResponse({
         "status": "success",
-        "details": user
+        "details": user.to_dict()
     }, status=200)
     
     return response

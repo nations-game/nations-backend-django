@@ -32,7 +32,7 @@ class Nation(Model):
     tax_rate = FloatField(default=1.0)
 
     # Leader info
-    leader = ForeignKey("User", on_delete=CASCADE)
+    leader = ForeignKey("User", related_name="leader", on_delete=CASCADE)
 
     def __dict__(self):
         return {

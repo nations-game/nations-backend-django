@@ -1,19 +1,16 @@
-from django.contrib.auth.models import User as DjangoUser
+from django.contrib.auth.models import AbstractUser
 from django.db.models import (
+    EmailField,
     CharField, 
     ForeignKey, 
     CASCADE
 )
 
-
-class User(DjangoUser):
-    class Meta:
-        app_label = "nations_backend"
-    
+class User(AbstractUser):
     # Nation info
-    nation = ForeignKey("Nation", on_delete=CASCADE)
+    nation = ForeignKey("Nation", on_delete=CASCADE, blank=True, null=True)
 
-    def __dict__(self):
+    def to_dict(self):
         return {
             "id": self.id,
             "username": self.username,
