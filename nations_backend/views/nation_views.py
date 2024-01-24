@@ -38,6 +38,7 @@ def create_nation(request: HttpRequest) -> JsonResponse:
         leader=user
     )
 
+    # Auto add factories for debugging
     NationFactory.objects.create(
         nation=nation,
         factory_type=FactoryType.objects.filter(name="Farm").first()

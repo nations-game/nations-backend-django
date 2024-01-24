@@ -86,12 +86,22 @@ def login_user(request: HttpRequest) -> JsonResponse:
     }, status=200)
 
 @require_http_methods(["GET"])
-def user_info(request: HttpRequest) -> JsonResponse:
+def user_info(request: HttpRequest, username: str) -> JsonResponse:
     if request.user is None:
         return JsonResponse({
             "status": "error",
             "details": "Not authenticated!"
         }, status=401)
+    
+    if username == "me":
+        user: User = request.user
+    else:
+        user: User = User.objects.filter(username=username).first()
 
-    user_info: User = request.user
-    return JsonResponse(user_info.to_dict())
+    if user is None:
+        return JsonResponse({
+            "status": "error",
+            "details": "Invalid user!"
+        }, status=404)
+
+    return JsonResponse(user.to_dict())
