@@ -9,14 +9,20 @@ from django.db.models import (
     CASCADE
 )
 
-
 class Nation(Model):
     
     name = CharField(max_length=24)
-    system = IntegerField() # 0 = capitalism, 1 = socialism, 2 = dictatorship
     population = IntegerField(default=50_000)
     happiness = IntegerField(default=75) # min 0, max 100
     flag = CharField(max_length=200) # link to flag, will be implemented later
+
+    SYSTEM_CHOICES = (
+        (0, "Capitalism"),
+        (1, "Socialism"),
+        (2, "Dictatorship")
+    )
+    
+    system = IntegerField(choices=SYSTEM_CHOICES) # 0 = capitalism, 1 = socialism, 2 = dictatorship
     
     # Commodities
     money = IntegerField(default=100_000)

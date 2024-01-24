@@ -33,5 +33,6 @@ urlpatterns = [
 
     path("nation/create", create_nation, name="create_nation"),
     path("nation/info", nation_info, name="nation_info"),
+
     path("admin/", admin.site.urls),
 ]

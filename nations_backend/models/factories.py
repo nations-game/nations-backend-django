@@ -6,6 +6,7 @@ from django.db.models import (
     Model, 
     CASCADE
 )
+from . import Nation
 
 
 class FactoryType(Model):
@@ -16,9 +17,8 @@ class FactoryType(Model):
     max_level = IntegerField(default=5)
     current_level = IntegerField(default=1)
 
-    def __dict__(self) -> dict:
+    def to_dict(self) -> dict:
         return {
-            "id": self.id,
             "name": self.name,
             "commodity": self.commodity,
             "production": self.production,
@@ -28,5 +28,5 @@ class FactoryType(Model):
 
 
 class NationFactory(Model):
-    nation = ForeignKey("Nation", on_delete=CASCADE)
+    nation = ForeignKey(Nation, on_delete=CASCADE, related_name="factories")
     factory_type = ForeignKey(FactoryType, on_delete=CASCADE)
