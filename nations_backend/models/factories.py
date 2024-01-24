@@ -27,3 +27,4 @@ class FactoryType(Model):
 class NationFactory(Model):
     nation = ForeignKey("Nation", on_delete=CASCADE, related_name="factories")
     factory_type = ForeignKey(FactoryType, on_delete=CASCADE)
+    production_resources = ForeignKey(int, on_delete=CASCADE) # Not sure what this does (yea i'm pretty stupid)
