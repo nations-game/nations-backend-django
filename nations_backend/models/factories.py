@@ -6,12 +6,9 @@ from django.db.models import (
     Model, 
     CASCADE
 )
-from . import Nation
-
 
 class FactoryType(Model):
-    
-    name = CharField(max_length=24)
+    name = CharField(max_length=24, unique=True)
     commodity = CharField(max_length=24)
     production = IntegerField(default=5)
     max_level = IntegerField(default=5)
@@ -28,5 +25,5 @@ class FactoryType(Model):
 
 
 class NationFactory(Model):
-    nation = ForeignKey(Nation, on_delete=CASCADE, related_name="factories")
+    nation = ForeignKey("Nation", on_delete=CASCADE, related_name="factories")
     factory_type = ForeignKey(FactoryType, on_delete=CASCADE)

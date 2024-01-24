@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
-from ..models import User, Nation
+from ..models import User, Nation, NationFactory, FactoryType
 
 import json
 
@@ -38,6 +38,20 @@ def create_nation(request: HttpRequest) -> JsonResponse:
         leader=user
     )
 
+    NationFactory.objects.create(
+        nation=nation,
+        factory_type=FactoryType.objects.filter(name="Farm").first()
+    )
+
+    NationFactory.objects.create(
+        nation=nation,
+        factory_type=FactoryType.objects.filter(name="Clothes Factory").first()
+    )
+
+    NationFactory.objects.create(
+        nation=nation,
+        factory_type=FactoryType.objects.filter(name="Hydro Power Plant").first()
+    )
     user.nation = nation
     user.save()
 
@@ -53,8 +67,15 @@ def nation_info(request: HttpRequest) -> JsonResponse:
             "status": "error",
             "details": "Not authenticated!"
         }, status=401)
+    
 
     user: User = request.user
+
+    if user.nation is None:
+        return JsonResponse({
+            "status": "error",
+            "details": "User does not have a nation!"
+        }, status=401)
 
     nation: Nation = user.nation
     return JsonResponse(nation.to_dict())

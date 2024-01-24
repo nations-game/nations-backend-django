@@ -9,6 +9,8 @@ from django.db.models import (
     CASCADE
 )
 
+from .factories import NationFactory
+
 class Nation(Model):
     
     name = CharField(max_length=24)
@@ -51,6 +53,9 @@ class Nation(Model):
             "building_materials": self.building_materials,
             "metal": self.metal
         }
+    
+    def get_factories(self):
+        return NationFactory.objects.filter(nation=self).all()
 
 
 class NationSystem(Enum):
