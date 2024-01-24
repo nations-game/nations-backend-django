@@ -30,8 +30,8 @@ class Nation(Model):
     money = IntegerField(default=100_000)
     food = IntegerField(default=100_000)
     power = IntegerField(default=10_000)
-    building_materials = IntegerField(default=1_000)
-    metal = IntegerField(default=1_000)
+    building_materials = IntegerField(default=10_000)
+    metal = IntegerField(default=100)
     consumer_goods = IntegerField(default=10_000)
 
     # Info for ticking
@@ -56,7 +56,6 @@ class Nation(Model):
     
     def get_factories(self):
         return NationFactory.objects.filter(nation=self).all()
-
 
 class NationSystem(Enum):
     CAPITALISM = 0
