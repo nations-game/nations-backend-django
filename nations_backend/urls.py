@@ -27,12 +27,12 @@ from .views import (
 )
 
 urlpatterns = [
-    path("user/signup", signup_user, name="signup"),
-    path("user/login", login_user, name="login"),
-    path("user/@<str:username>/info", user_info, name="info"),
+    path("api/user/signup", signup_user, name="signup"),
+    path("api/user/login", login_user, name="login"),
+    path("api/user/@<str:username>/info", user_info, name="info"),
 
-    path("nation/create", create_nation, name="create_nation"),
-    path("nation/info", nation_info, name="nation_info"),
+    path("api/nation/create", create_nation, name="create_nation"),
+    path("api/nation/info", nation_info, name="nation_info"),
 
     path("admin/", admin.site.urls),
 ]
