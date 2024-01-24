@@ -14,8 +14,8 @@ class Nation(Model):
     
     name = CharField(max_length=24)
     system = IntegerField() # 0 = capitalism, 1 = socialism, 2 = dictatorship
-    population = IntegerField()
-    happiness = IntegerField() # min 0, max 100
+    population = IntegerField(default=50_000)
+    happiness = IntegerField(default=75) # min 0, max 100
     flag = CharField(max_length=200) # link to flag, will be implemented later
     
     # Commodities
@@ -32,9 +32,8 @@ class Nation(Model):
     # Leader info
     leader = ForeignKey("User", related_name="leader", on_delete=CASCADE)
 
-    def __dict__(self):
+    def to_dict(self):
         return {
-            "id": self.id,
             "name": self.name,
             "system": self.system,
             "leader_id": self.leader_id,

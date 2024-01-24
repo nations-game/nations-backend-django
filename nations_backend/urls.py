@@ -20,12 +20,18 @@ from django.urls import path
 from .views import (
     signup_user,
     login_user,
-    test_sessions
+    user_info,
+
+    create_nation,
+    nation_info
 )
 
 urlpatterns = [
     path("user/signup", signup_user, name="signup"),
     path("user/login", login_user, name="login"),
-    path("user/test", test_sessions, name="test"),
+    path("user/info", user_info, name="info"),
+
+    path("nation/create", create_nation, name="create_nation"),
+    path("nation/info", nation_info, name="nation_info"),
     path("admin/", admin.site.urls),
 ]

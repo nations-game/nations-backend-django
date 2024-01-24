@@ -9,7 +9,10 @@ from ..models import User
 @require_http_methods(["POST"])
 def signup_user(request: HttpRequest) -> JsonResponse:
     if not request.body:
-        return "" # Replace with error response later
+        return JsonResponse({
+            "status": "error",
+            "details": "Malformed request."
+        }, status=400)
 
     request_data: dict = json.loads(request.body)
 
@@ -21,13 +24,22 @@ def signup_user(request: HttpRequest) -> JsonResponse:
         confirm_password: str = request_data["confirm_password"]
         accepted_tos: bool = request_data["accepted_tos"]
     except KeyError:
-        return "" # Replace with malformed request error response later
+        return JsonResponse({
+            "status": "error",
+            "details": "Malformed request."
+        }, status=400)
 
     if not accepted_tos:
-        return "" # Replace with tos acceptance error response later
+        return JsonResponse({
+            "status": "error",
+            "details": "Please accept the Terms of Service!"
+        }, status=400)
 
     if password != confirm_password:
-        return "" # Replace with password confirmation error response later
+        return JsonResponse({
+            "status": "error",
+            "details": "Passwords do not match!"
+        }, status=400)
     
     user: User = User.objects.create_user(
         username=username,
@@ -39,17 +51,18 @@ def signup_user(request: HttpRequest) -> JsonResponse:
     login(request, user)
     request.session.save()
     
-    response: JsonResponse = JsonResponse({
+    return JsonResponse({
         "status": "success",
         "details": user.to_dict()
     }, status=200)
-    
-    return response
 
 @require_http_methods(["POST"])
 def login_user(request: HttpRequest) -> JsonResponse:
     if not request.body:
-        return "" # Replace with error response later
+        return JsonResponse({
+            "status": "error",
+            "details": "Malformed request."
+        }, status=400)
 
     request_data: dict = json.loads(request.body)
     
@@ -59,24 +72,26 @@ def login_user(request: HttpRequest) -> JsonResponse:
     user: User = authenticate(email=email, password=password)
 
     if not User:
-        return "" # Replace with error response later
+        return JsonResponse({
+            "status": "error",
+            "details": "Could not find user!"
+        }, status=404)
     
     login(request, user)
     request.session.save()
 
-    response: JsonResponse = JsonResponse({
+    return JsonResponse({
         "status": "success",
         "details": "Logged in."
     }, status=200)
-    
-    return response
 
 @require_http_methods(["GET"])
 def user_info(request: HttpRequest) -> JsonResponse:
-    return HttpResponse("hi mom!!")
+    if request.user is None:
+        return JsonResponse({
+            "status": "error",
+            "details": "Not authenticated!"
+        }, status=401)
 
-@require_http_methods(["GET"])
-def test_sessions(request: HttpRequest) -> JsonResponse:
-    user_name = request.user.get_username()
-
-    return HttpResponse(user_name)
+    user_info: User = request.user
+    return JsonResponse(user_info.to_dict())
