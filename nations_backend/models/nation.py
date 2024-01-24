@@ -56,8 +56,3 @@ class Nation(Model):
     
     def get_factories(self):
         return NationFactory.objects.filter(nation=self).all()
-
-class NationSystem(Enum):
-    CAPITALISM = 0
-    SOCIALISM = 1
-    DICTATORSHIP = 2
