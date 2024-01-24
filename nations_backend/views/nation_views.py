@@ -86,14 +86,23 @@ def nation_factories(request: HttpRequest) -> JsonResponse:
 
     nation: Nation = user.nation
 
-    factory_info_list = []
+    factory_info_dict = {}
 
-    nation_factory: NationFactory
     for nation_factory in nation.get_factories():
-        factory_info_list.append(
-            factory_manager.get_factory_by_id(
-                nation_factory.factory_type
-            ).__dict__()
-        )
+        factory_type_id = nation_factory.factory_type
+        factory_type_info = factory_manager.get_factory_by_id(factory_type_id).__dict__()
+        ticks_run = nation_factory.ticks_run
+
+        if factory_type_id not in factory_info_dict:
+            factory_info_dict[factory_type_id] = {
+                "info": factory_type_info,
+                "ticks_run": ticks_run,
+                "quantity": 1 
+            }
+        else:
+            factory_info_dict[factory_type_id]["ticks_run"] += ticks_run
+            factory_info_dict[factory_type_id]["quantity"] += 1
+
+    factory_info_list = list(factory_info_dict.values())
 
     return JsonResponse(factory_info_list, safe=False)

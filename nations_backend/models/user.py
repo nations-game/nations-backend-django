@@ -1,7 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (
-    EmailField,
-    CharField, 
     ForeignKey, 
     CASCADE
 )

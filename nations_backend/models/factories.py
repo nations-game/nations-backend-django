@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CharField, 
     FloatField, 
@@ -10,4 +11,10 @@ from django.db.models import (
 class NationFactory(Model):
     nation = ForeignKey("Nation", on_delete=CASCADE, related_name="factories")
     factory_type = CharField(max_length=100)
-    produced_commodities = IntegerField(default=0) # Not sure what this does (yea i'm pretty stupid)
+
+    ticks_run = IntegerField(
+        default=3,
+        validators=[
+            MaxValueValidator(24)
+        ]
+    )
