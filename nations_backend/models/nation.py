@@ -35,7 +35,7 @@ class Nation(Model):
     consumer_goods = IntegerField(default=10_000)
 
     # Info for ticking
-    tax_rate = FloatField(default=1.0)
+    taxes_to_collect = IntegerField()
 
     # Leader info
     leader = ForeignKey("User", related_name="leader", on_delete=CASCADE)
