@@ -25,6 +25,7 @@ from .views import (
     create_nation,
     nation_info,
     nation_factories,
+    collect_taxes,
 
     get_all_factories,
     build_factory,
@@ -43,6 +44,7 @@ urlpatterns = [
             path("create", create_nation, name="create_nation"),
             path("info", nation_info, name="nation_info"),
             path("factories", nation_factories, name="nation_factories"),
+            path("collecttaxes", collect_taxes, name="collect_taxes")
         ])),
 
         path("factories/", include([

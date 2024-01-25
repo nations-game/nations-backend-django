@@ -1,5 +1,5 @@
 from enum import Enum
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CharField, 
     FloatField, 
@@ -15,8 +15,13 @@ class Nation(Model):
     
     name = CharField(max_length=24)
     population = IntegerField(default=50_000)
-    happiness = IntegerField(default=75) # min 0, max 100
     flag = CharField(max_length=200) # link to flag, will be implemented later
+
+    happiness = IntegerField(default=5,
+        validators=[
+            MinValueValidator(-10),
+            MaxValueValidator(10)
+    ])
 
     SYSTEM_CHOICES = (
         (0, "Capitalism"),
@@ -35,16 +40,22 @@ class Nation(Model):
     consumer_goods = IntegerField(default=10_000)
 
     # Info for ticking
-    taxes_to_collect = IntegerField()
+    taxes_to_collect = IntegerField(default=2_500)
 
     # Leader info
     leader = ForeignKey("User", related_name="leader", on_delete=CASCADE)
 
     def to_dict(self):
         return {
+            # basic info
             "name": self.name,
             "system": self.system,
             "leader_id": self.leader_id,
+
+            # stats
+            "population": self.population,
+            "happiness": self.happiness,
+            "pending_taxes": self.taxes_to_collect,
 
             # Commodities
             "money": self.money,

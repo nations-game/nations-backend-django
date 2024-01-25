@@ -75,7 +75,6 @@ def nation_factories(request: HttpRequest) -> JsonResponse:
             "details": "Not authenticated!"
         }, status=401)
     
-
     user: User = request.user
 
     if user.nation is None:
@@ -106,3 +105,31 @@ def nation_factories(request: HttpRequest) -> JsonResponse:
     factory_info_list = list(factory_info_dict.values())
 
     return JsonResponse(factory_info_list, safe=False)
+
+@require_http_methods(["POST"])
+def collect_taxes(request: HttpRequest) -> JsonResponse:
+    if request.user is None or request.user.is_anonymous:
+        return JsonResponse({
+            "status": "error",
+            "details": "Not authenticated!"
+        }, status=401)
+    
+
+    user: User = request.user
+
+    if user.nation is None:
+        return JsonResponse({
+            "status": "error",
+            "details": "User does not have a nation!"
+        }, status=401)
+
+    nation: Nation = user.nation
+    taxes = nation.taxes_to_collect
+    nation.money += taxes
+    nation.taxes_to_collect = 0
+    nation.save()
+    
+    return JsonResponse({
+        "status": "success",
+        "details": f"Collected {taxes} in taxes!"
+    }, status=200)
