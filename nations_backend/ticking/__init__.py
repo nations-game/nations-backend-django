@@ -1,11 +1,21 @@
-from ..models import Nation
+from ..factories import BaseFactory, factory_manager
+from ..models import Nation, NationFactory
 
-class Ticking:
+class TickNation:
     def __init__(self, nation: Nation) -> None:
         self.nation = nation
         pass
 
+    def run_tick(self) -> None:
+        self.factory_production()
+        self.population_consumption()
+        self.tax_accumulation()
+        self.population_growth()
+
     def tax_accumulation(self) -> None:
+        """
+        Calculate how much in taxes a nation has earned, and add it to the nation's taxes_to_collect.
+        """
         total_tax = 200 # you'll get at least 200 money in taxes
         if self.nation.happiness > 0:
             population_tax = int(self.nation.population / 20)
@@ -53,9 +63,6 @@ class Ticking:
         # Apply all the changes
         self.nation.save()
 
-    def happiness_calculation(self) -> None:
-        ...
-
     def population_growth(self) -> None:
         """
         Calculate population growth and increase the population.
@@ -73,3 +80,28 @@ class Ticking:
         
         self.nation.population += total_growth
         self.nation.save()
+
+    def factory_production(self) -> None:
+        nation_factories = NationFactory.objects.filter(nation=self.nation).all()
+
+        # Use resources needed to run factories
+        for nation_factory in nation_factories:
+            factory_type: BaseFactory = factory_manager.get_factory_by_id(nation_factory.factory_type)
+            for commodity, quantity in factory_type.input:
+                match commodity.value:
+                    case "money": 
+                        if quantity < self.nation.money: self.nation.money -= quantity
+                    case "food": 
+                        if quantity < self.nation.food: self.nation.food -= quantity
+                    case "power": 
+                        if quantity < self.nation.power: self.nation.power -= quantity
+                    case "building_materials": 
+                        if quantity < self.nation.building_materials: self.nation.building_materials -= quantity
+                    case "metal": 
+                        if quantity < self.nation.metal: self.nation.metal -= quantity
+                    case "consumer_goods": 
+                        if quantity < self.nation.consumer_goods: self.nation.consumer_goods -= quantity
+            nation_factory.ticks_run += 1
+            nation_factory.save()
+        self.nation.save()
+        

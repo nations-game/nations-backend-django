@@ -13,7 +13,8 @@ class NationFactory(Model):
     factory_type = CharField(max_length=100)
 
     ticks_run = IntegerField(
-        default=3,
+        # default=3,
+        default=0,
         validators=[
             MaxValueValidator(24)
         ]

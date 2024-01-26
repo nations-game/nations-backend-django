@@ -32,15 +32,15 @@ class Nation(Model):
     system = IntegerField(choices=SYSTEM_CHOICES) # 0 = capitalism, 1 = socialism, 2 = dictatorship
     
     # Commodities
-    money = IntegerField(default=100_000)
-    food = IntegerField(default=100_000)
-    power = IntegerField(default=10_000)
+    money = IntegerField(default=50_000)
+    food = IntegerField(default=50_000)
+    power = IntegerField(default=50_000)
     building_materials = IntegerField(default=10_000)
     metal = IntegerField(default=100)
     consumer_goods = IntegerField(default=10_000)
 
     # Info for ticking
-    taxes_to_collect = IntegerField(default=2_500)
+    taxes_to_collect = IntegerField(default=0)
 
     # Leader info
     leader = ForeignKey("User", related_name="leader", on_delete=CASCADE)
