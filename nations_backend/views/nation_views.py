@@ -1,37 +1,27 @@
+from http import HTTPStatus
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
-from ..models import User, Nation, NationFactory
+
+from ..decorators import parse_json, needs_auth, needs_nation
 from ..factories import BaseFactory, factory_manager
+from ..models import User, Nation, NationFactory
+from ..utils import build_error_response, build_success_response
 
-import json
-
+@needs_auth
 @require_http_methods(["POST"])
-def create_nation(request: HttpRequest) -> JsonResponse:
-    if request.user is None or request.user.is_anonymous:
-        return JsonResponse({
-            "status": "error",
-            "details": "Not authenticated!"
-        }, status=401)
-    
+@parse_json([
+    ("name", str),
+    ("system", str),
+])
+def create_nation(request: HttpRequest, name: str, system: str) -> JsonResponse:
     user: User = request.user
 
     if user.nation is not None:
-        return JsonResponse({
-            "status": "error",
-            "details": "User already has a nation!"
-        }, status=400)
-    
-    if not request.body:
-        return JsonResponse({
-            "status": "error",
-            "details": "Malformed request."
-        }, status=400)
-
-    request_data: dict = json.loads(request.body)
-    
-    name: str = request_data.get("name")
-    system: str = request_data.get("system")
+        return build_error_response(
+            "User Already Has Nation", HTTPStatus.BAD_REQUEST
+        )
 
     nation: Nation = Nation.objects.create(
         name=name,
@@ -42,46 +32,24 @@ def create_nation(request: HttpRequest) -> JsonResponse:
     user.nation = nation
     user.save()
 
-    return JsonResponse({
-        "status": "success",
-        "details": nation.to_dict()
-    }, status=200)
+    return build_success_response(
+        nation.to_dict(), HTTPStatus.CREATED
+    )
 
+@needs_nation
 @require_http_methods(["GET"])
 def nation_info(request: HttpRequest) -> JsonResponse:
-    if request.user is None or request.user.is_anonymous:
-        return JsonResponse({
-            "status": "error",
-            "details": "Not authenticated!"
-        }, status=401)
-    
-
     user: User = request.user
-
-    if user.nation is None:
-        return JsonResponse({
-            "status": "error",
-            "details": "User does not have a nation!"
-        }, status=401)
 
     nation: Nation = user.nation
-    return JsonResponse(nation.to_dict())
+    return build_success_response(
+        nation.to_dict(), HTTPStatus.OK
+    )
 
+@needs_nation
 @require_http_methods(["GET"])
 def nation_factories(request: HttpRequest) -> JsonResponse:
-    if request.user is None or request.user.is_anonymous:
-        return JsonResponse({
-            "status": "error",
-            "details": "Not authenticated!"
-        }, status=401)
-    
     user: User = request.user
-
-    if user.nation is None:
-        return JsonResponse({
-            "status": "error",
-            "details": "User does not have a nation!"
-        }, status=401)
 
     nation: Nation = user.nation
 
@@ -104,32 +72,22 @@ def nation_factories(request: HttpRequest) -> JsonResponse:
 
     factory_info_list = list(factory_info_dict.values())
 
-    return JsonResponse(factory_info_list, safe=False)
+    # Set safe to false in order to send list 
+    return build_success_response(
+        factory_info_list, HTTPStatus.OK, safe=False 
+    )
 
+@needs_nation
 @require_http_methods(["POST"])
 def collect_taxes(request: HttpRequest) -> JsonResponse:
-    if request.user is None or request.user.is_anonymous:
-        return JsonResponse({
-            "status": "error",
-            "details": "Not authenticated!"
-        }, status=401)
-    
-
     user: User = request.user
-
-    if user.nation is None:
-        return JsonResponse({
-            "status": "error",
-            "details": "User does not have a nation!"
-        }, status=401)
 
     nation: Nation = user.nation
     taxes = nation.taxes_to_collect
     nation.money += taxes
     nation.taxes_to_collect = 0
     nation.save()
-    
-    return JsonResponse({
-        "status": "success",
-        "details": f"Collected {taxes} in taxes!"
-    }, status=200)
+
+    return build_success_response(
+        f"Collected {taxes} in taxes!", HTTPStatus.OK
+    )

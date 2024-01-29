@@ -1,68 +1,43 @@
+import json
+from http import HTTPStatus
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
+
 from ..models import User, Nation, NationFactory
 from ..factories import factory_manager, BaseFactory, Commodities
+from ..decorators import parse_json, needs_auth, needs_nation
+from ..utils import build_error_response, build_success_response
 
-import json
-
+@needs_nation
 @require_http_methods(["GET"])
 def get_all_factories(request: HttpRequest) -> JsonResponse:
-    if request.user is None or request.user.is_anonymous:
-        return JsonResponse({
-            "status": "error",
-            "details": "Not authenticated!"
-        }, status=401)
-    
-    user: User = request.user
-
-    if user.nation is None:
-        return JsonResponse({
-            "status": "error",
-            "details": "User does not have a nation!"
-        }, status=401)
-    
     factory_info_list = []
 
     for factory in factory_manager.get_factories():
         factory_info_list.append(factory.__dict__())
 
-    return JsonResponse(factory_info_list, safe=False)
+    # Set safe to false in order to send list 
+    return build_success_response(
+        factory_info_list, HTTPStatus.OK, safe=False
+    )
 
+@needs_nation
 @require_http_methods(["POST"])
-def build_factory(request: HttpRequest) -> JsonResponse:
-    if request.user is None or request.user.is_anonymous:
-        return JsonResponse({
-            "status": "error",
-            "details": "Not authenticated!"
-        }, status=401)
-    
-    if not request.body:
-        return JsonResponse({
-            "status": "error",
-            "details": "Malformed request."
-        }, status=400)
-    
+@parse_json([
+    ("factory_id", str)
+])
+def build_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
     user: User = request.user
-
-    if user.nation is None:
-        return JsonResponse({
-            "status": "error",
-            "details": "User does not have a nation!"
-        }, status=401)
-    
     nation: Nation = user.nation
     
-    request_data: dict = json.loads(request.body)
-    
-    factory_id: str = request_data.get("factory_id")
     factory: BaseFactory = factory_manager.get_factory_by_id(factory_id)
-
+    
     if factory is None:
-        return JsonResponse({
-            "status": "error",
-            "details": "Factory not found!"
-        }, status=400)
+        return build_error_response(
+            "Factory not found!", HTTPStatus.BAD_REQUEST
+        )
 
     commodity: Commodities
     quantity: int
@@ -83,10 +58,9 @@ def build_factory(request: HttpRequest) -> JsonResponse:
                 if quantity > nation.consumer_goods: can_afford = False
                 
     if not can_afford:
-        return JsonResponse({
-            "status": "error",
-            "details": "You can't afford that!"
-        }, status=400)
+        return build_error_response(
+            "You can't afford that!", HTTPStatus.BAD_REQUEST
+        )
     
     for commodity, quantity in factory.cost:
         match commodity.value:
@@ -110,46 +84,27 @@ def build_factory(request: HttpRequest) -> JsonResponse:
         factory_type=factory_id
     )
 
-    return JsonResponse({
-        "status": "success",
-        "details": "Built factory!"
-    }, status=200)
+    return build_success_response(
+        "Built Factory!", HTTPStatus.CREATED
+    )
 
+@needs_nation
 @require_http_methods(["POST"])
-def collect_from_factory(request: HttpRequest) -> JsonResponse:
-    if request.user is None or request.user.is_anonymous:
-        return JsonResponse({
-            "status": "error",
-            "details": "Not authenticated!"
-        }, status=401)
-    
-    if not request.body:
-        return JsonResponse({
-            "status": "error",
-            "details": "Malformed request."
-        }, status=400)
-    
+@parse_json([
+    ("factory_id", str)
+])
+def collect_from_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
     user: User = request.user
-
-    if user.nation is None:
-        return JsonResponse({
-            "status": "error",
-            "details": "User does not have a nation!"
-        }, status=401)
-    
     nation: Nation = user.nation
 
-    request_data: dict = json.loads(request.body)
-    factory_id: str = request_data.get("factory_id")
     base_factory: BaseFactory = factory_manager.get_factory_by_id(factory_id)
 
     nation_factories = NationFactory.objects.filter(factory_type=factory_id).all()
 
     if nation_factories is None or len(nation_factories) == 0:
-        return JsonResponse({
-            "status": "error",
-            "details": "Invalid factory ID."
-        }, status=400)
+        return build_error_response(
+            "Invalid Factory ID", HTTPStatus.BAD_REQUEST
+        )
     
     # It should have already taken away this when doing the production stuff
     for nation_factory in nation_factories:
@@ -174,7 +129,6 @@ def collect_from_factory(request: HttpRequest) -> JsonResponse:
     nation_factory.ticks_run = 0 # removed for debugging
     nation_factory.save()
 
-    return JsonResponse({
-        "status": "success",
-        "details": "Collected from factory!"
-    }, status=200)
+    return build_success_response(
+        "Collected From Factory", HTTPStatus.CREATED
+    )
