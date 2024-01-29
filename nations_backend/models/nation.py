@@ -10,6 +10,7 @@ from django.db.models import (
 )
 
 from .factories import NationFactory
+from .alliance import Alliance, AllianceMember
 
 class Nation(Model):
     
@@ -67,3 +68,10 @@ class Nation(Model):
     
     def get_factories(self):
         return NationFactory.objects.filter(nation=self).all()
+    
+    def get_alliance(self) -> Alliance:
+        alliance_member = AllianceMember.objects.filter(nation=self).first()
+        
+        if alliance_member != None:
+            return alliance_member.alliance
+        else: return None
