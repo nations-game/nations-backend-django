@@ -12,10 +12,10 @@ def build_success_response(details: str, status_code: int, safe: bool = True) ->
     return JsonResponse({
         "status": "success",
         "details": details
-    }, status=status_code)
+    }, status=status_code, safe=safe)
 
 def build_error_response(details: str, status_code: int, safe: bool = True) -> JsonResponse:
     return JsonResponse({
         "status": "error",
         "details": details
-    }, status=status_code)
+    }, status=status_code, safe=safe)

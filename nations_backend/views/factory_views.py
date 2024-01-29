@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 
 from ..models import User, Nation, NationFactory
 from ..factories import factory_manager, BaseFactory, Commodities
-from ..decorators import parse_json, needs_auth, needs_nation
+from ..decorators import parse_json, needs_nation
 from ..utils import build_error_response, build_success_response
 
 @needs_nation
