@@ -13,9 +13,9 @@ from ..utils import build_error_response, build_success_response
 @require_http_methods(["POST"])
 @parse_json([
     ("name", str),
-    ("system", str),
+    ("system", int),
 ])
-def create_nation(request: HttpRequest, name: str, system: str) -> JsonResponse:
+def create_nation(request: HttpRequest, name: str, system: int) -> JsonResponse:
     user: User = request.user
 
     if user.nation is not None:
