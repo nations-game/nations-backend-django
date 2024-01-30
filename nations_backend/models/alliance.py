@@ -12,6 +12,10 @@ class Alliance(Model):
     name = CharField(max_length=24)
     icon = CharField(max_length=100) # path to image
     public = BooleanField(default=True)
+
+    def get_member_count(self):
+        members = self.get_alliance_members()
+        return len(members)
     
     def get_pending_requests(self):
         return AllianceRequest.objects.filter(alliance=self).all()

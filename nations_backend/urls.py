@@ -18,18 +18,24 @@ from django.contrib import admin
 from django.urls import path, include
 
 from .views import (
+    # User views
     signup_user,
     login_user,
     user_info,
 
+    # Nation views
     create_nation,
     nation_info,
     nation_factories,
     collect_taxes,
 
+    # Fatory views
     get_all_factories,
     build_factory,
-    collect_from_factory
+    collect_from_factory,
+
+    # Alliance view
+    get_alliance_list
 )
 
 urlpatterns = [
@@ -52,6 +58,10 @@ urlpatterns = [
             path("build", build_factory, name="build_factory"),
             path("collect", collect_from_factory, name="collect_from_factory")
         ])),
+
+        path("alliance/", include([
+            path("list", get_alliance_list, name="get_alliance_list"),
+        ]))
     ])),
 
     path("admin/", admin.site.urls),
