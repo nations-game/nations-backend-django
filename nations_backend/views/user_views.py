@@ -6,7 +6,7 @@ from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_http_methods
 
 from ..decorators import parse_json, needs_auth
-from ..models import User
+from ..models import User, Notification
 from ..utils import build_error_response, build_success_response
 
 @require_http_methods(["POST"])
@@ -67,6 +67,7 @@ def login_user(request: HttpRequest, email: str, password: str) -> JsonResponse:
 def user_info(request: HttpRequest, username: str) -> JsonResponse:
     if username == "me":
         user: User = request.user
+        user.post_notification(title="Test Notification", details="Hello! This is a test notification.")
     else:
         user: User = User.objects.filter(username=username).first()
 
@@ -77,4 +78,33 @@ def user_info(request: HttpRequest, username: str) -> JsonResponse:
 
     return build_success_response(
         user.to_dict(), HTTPStatus.OK
+    )
+
+@require_http_methods(["GET"])
+@needs_auth
+def get_notifications(request: HttpRequest) -> JsonResponse:
+    user: User = request.user
+
+    notifications = Notification.objects.filter(user=user)
+    notification_list = []
+    for notif in notifications:
+        notification_list.append(notif.to_dict())
+
+    notification_list.sort(key=lambda x: x["timestamp"], reverse=True)
+    return build_success_response(
+        notification_list, HTTPStatus.OK, safe=False
+    )
+
+@require_http_methods(["POST"])
+@needs_auth
+@parse_json([
+    ("id", int)
+])
+def read_notification(request: HttpRequest, id: int) -> JsonResponse:
+    notif = Notification.objects.filter(id=id).first()
+    notif.read = True
+    notif.save()
+
+    return build_success_response(
+        "Marked notificaiton as read.", HTTPStatus.OK
     )

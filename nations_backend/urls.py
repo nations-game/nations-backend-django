@@ -22,6 +22,8 @@ from .views import (
     signup_user,
     login_user,
     user_info,
+    get_notifications,
+    read_notification,
 
     # Nation views
     create_nation,
@@ -45,6 +47,8 @@ urlpatterns = [
             path("signup", signup_user, name="signup"),
             path("login", login_user, name="login"),
             path("@<str:username>/info", user_info, name="info"),
+            path("notifications", get_notifications, name="get_notifications"),
+            path("readnotification", read_notification, name="read_notification"),
         ])),
         
         path("nation/", include([
