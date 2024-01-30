@@ -35,7 +35,8 @@ from .views import (
     collect_from_factory,
 
     # Alliance view
-    get_alliance_list
+    get_alliance_list,
+    create_alliance
 )
 
 urlpatterns = [
@@ -61,6 +62,7 @@ urlpatterns = [
 
         path("alliance/", include([
             path("list", get_alliance_list, name="get_alliance_list"),
+            path("create", create_alliance, name="create_alliance"),
         ]))
     ])),
 
