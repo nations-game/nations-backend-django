@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest
+from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest, AllianceShout
 from ..decorators import parse_json, needs_nation
 from ..utils import build_error_response, build_success_response
 
@@ -13,21 +13,30 @@ from ..utils import build_error_response, build_success_response
 @require_http_methods(["GET"])
 def get_alliance_list(request: HttpRequest) -> JsonResponse:
     alliance_list = []
-    alliance_objs = Alliance.objects.all()
 
-    for alliance_obj in alliance_objs:
-        alliance_list.append({
-            "id": alliance_obj.id,
-            "name": alliance_obj.name,
-            "icon": alliance_obj.icon,
-            "status": "public" if alliance_obj.public else "private",
-            "member_count": alliance_obj.get_member_count(),
-            "owner_nation_id": alliance_obj.get_alliance_owner().nation.id
-        })
+    for alliance_object in Alliance.objects.all():
+        alliance_list.append(alliance_object.to_dict())
 
     return build_success_response(
         alliance_list, HTTPStatus.OK, safe=False
     )
+
+@needs_nation
+@require_http_methods(["GET"])
+@parse_json([
+    ("id", int)
+])
+def get_alliance_by_id(request: HttpRequest, id: int) -> JsonResponse:
+    alliance = Alliance.objects.filter(id=id).first()
+
+    if alliance is None:
+        return build_error_response(
+            f"Alliance with id {id} not found!", 404
+        )
+    else:
+        return build_success_response(
+            alliance.to_dict(), 200
+        )
 
 @needs_nation
 @require_http_methods(["POST"])
@@ -77,6 +86,11 @@ def join_alliance(request: HttpRequest, id: int) -> JsonResponse:
 
     alliance = Alliance.objects.filter(id=id).first()
 
+    if alliance is None:
+        return build_error_response(
+            f"Alliance with id {id} not found!", 404
+        )
+
     if alliance.public:
         alliance_member = AllianceMember.objects.create(
             alliance=alliance,
@@ -97,6 +111,36 @@ def join_alliance(request: HttpRequest, id: int) -> JsonResponse:
         return build_success_response(
             f"Sent join request to {alliance.name}!", 200
         )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json([
+    ("shout_text", str)
+])
+def post_alliance_shout(request: HttpRequest, shout_text: str) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role == 0:
+        return build_error_response(
+            "You are unauthorized to do this!", 401
+        )
+
+    alliance = alliance_member.alliance
+
+    shout = AllianceShout.objects.create(
+        shouting_nation=nation,
+        text=shout_text
+    )
+
+    alliance.shout = shout
+    alliance.save()
+
+    return build_success_response(
+        "Posted alliance shout!", 200, safe=False
+    )
 
 @needs_nation
 @require_http_methods(["POST"])

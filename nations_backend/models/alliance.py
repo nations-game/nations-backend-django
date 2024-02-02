@@ -13,6 +13,9 @@ class Alliance(Model):
     icon = CharField(max_length=100) # path to image
     public = BooleanField(default=True)
 
+    # Alliance shout
+    shout = ForeignKey("AllianceShout", on_delete=CASCADE, blank=True, null=True)
+
     def get_member_count(self):
         members = self.get_alliance_members()
         return len(members)
@@ -28,6 +31,27 @@ class Alliance(Model):
     
     def get_alliance_owner(self):
         return AllianceMember.objects.filter(alliance=self, role=2).first()
+    
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "icon": self.icon,
+            "status": "public" if self.public else "private",
+            "member_count": self.get_member_count(),
+            "owner_nation_id": self.get_alliance_owner().nation.id,
+            "shout": self.shout.to_dict() if self.shout is not None else "empty"
+        }
+
+class AllianceShout(Model):
+    shouting_nation = ForeignKey("Nation", on_delete=CASCADE)
+    text = CharField(max_length=500)
+
+    def to_dict(self) -> dict:
+        return {
+            "nation": self.shouting_nation.id,
+            "text": self.text
+        }
 
 class AllianceRequest(Model):
     timestamp = IntegerField()

@@ -38,7 +38,11 @@ from .views import (
 
     # Alliance view
     get_alliance_list,
-    create_alliance
+    create_alliance,
+    post_alliance_shout,
+    get_join_requests,
+    join_alliance,
+    get_alliance_by_id,
 )
 
 urlpatterns = [
@@ -67,6 +71,13 @@ urlpatterns = [
         path("alliance/", include([
             path("list", get_alliance_list, name="get_alliance_list"),
             path("create", create_alliance, name="create_alliance"),
+            path("join", join_alliance, name="join_alliance"),
+            path("get", get_alliance_by_id, name="get_alliance_by_id"),
+
+            path("admin/", include([
+                path("shout", post_alliance_shout, name="post_alliance_shout"),
+                path("joinrequests", get_join_requests, name="get_join_requests")
+            ]))
         ]))
     ])),
 
