@@ -73,6 +73,10 @@ class Nation(Model):
     def get_buildings(self):
         return NationBuilding.objects.filter(nation=self).all()
     
+    def has_building(self, building_id: str) -> bool:
+        existing_building = NationBuilding.objects.filter(nation=self, building_type=building_id).first()
+        return existing_building is not None
+    
     def get_alliance(self) -> Alliance:
         alliance_member = AllianceMember.objects.filter(nation=self).first()
         
