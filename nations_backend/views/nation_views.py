@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from ..decorators import parse_json, needs_auth, needs_nation
 from ..factories import BaseFactory, factory_manager
+from ..buildings import BaseBuilding, building_manager
 from ..models import User, Nation, NationFactory
 from ..utils import build_error_response, build_success_response
 
@@ -76,6 +77,29 @@ def nation_factories(request: HttpRequest) -> JsonResponse:
     return build_success_response(
         factory_info_list, HTTPStatus.OK, safe=False 
     )
+
+@needs_nation
+@require_http_methods(["GET"])
+def nation_buildings(request: HttpRequest) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    building_info_list = []
+
+    for nation_building in nation.get_buildings():
+        building_type_id = nation_building.building_type
+        building_type_info = building_manager.get_building_by_id(building_type_id).__dict__()
+        level = nation_building.level
+
+        info_dict = building_type_info
+        info_dict.update({ "level": level })
+        building_info_list.append(info_dict)
+
+    # Set safe to false in order to send list 
+    return build_success_response(
+        building_info_list, HTTPStatus.OK, safe=False 
+    )
+
 
 @needs_nation
 @require_http_methods(["POST"])

@@ -31,6 +31,7 @@ class BaseFactory:
     def __dict__(self) -> dict:
         input_values = []
         output_values = []
+        cost_values = []
         
         for commodity, quantity in self.input:
             input_values.append({
@@ -43,10 +44,19 @@ class BaseFactory:
                 "commodity": commodity.value,
                 "quantity": quantity
             })
+
+        for commodity, quantity in self.cost:
+            cost_values.append({
+                "commodity": commodity.value,
+                "quantity": quantity
+            })
+
+
         return {
             "id": self.id,
             "name":  self.name,
             "description": self.description,
+            "cost": cost_values,
             "input": input_values,
             "output": output_values
         }

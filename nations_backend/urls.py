@@ -30,19 +30,24 @@ from .views import (
     nation_info,
     nation_factories,
     collect_taxes,
+    nation_buildings,
 
     # Fatory views
     get_all_factories,
     build_factory,
     collect_from_factory,
 
-    # Alliance view
+    # Alliance views
     get_alliance_list,
     create_alliance,
     post_alliance_shout,
     get_join_requests,
     join_alliance,
     get_alliance_by_id,
+
+    # Buildings views
+    get_all_buildings,
+    build_building,
 )
 
 urlpatterns = [
@@ -59,7 +64,8 @@ urlpatterns = [
             path("create", create_nation, name="create_nation"),
             path("info", nation_info, name="nation_info"),
             path("factories", nation_factories, name="nation_factories"),
-            path("collecttaxes", collect_taxes, name="collect_taxes")
+            path("collecttaxes", collect_taxes, name="collect_taxes"),
+            path("buildings", nation_buildings, name="nation_buildings")
         ])),
 
         path("factories/", include([
@@ -78,7 +84,12 @@ urlpatterns = [
                 path("shout", post_alliance_shout, name="post_alliance_shout"),
                 path("joinrequests", get_join_requests, name="get_join_requests")
             ]))
-        ]))
+        ])),
+
+        path("buildings/", include([
+            path("all", get_all_buildings, name="get_all_buildings"),
+            path("build", build_building, name="build_building"),
+        ])),
     ])),
 
     path("admin/", admin.site.urls),
