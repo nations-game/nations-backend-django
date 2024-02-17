@@ -63,3 +63,8 @@ class AllianceMember(Model):
     nation = ForeignKey("Nation", on_delete=CASCADE, related_name="alliance")
     alliance = ForeignKey("Alliance", on_delete=CASCADE)
     role = IntegerField(default=0) # 0 = member, 1 = admin, 2 = owner
+
+class AllianceRole:
+    MEMBER = 0
+    ADMIN = 1
+    OWNER = 2

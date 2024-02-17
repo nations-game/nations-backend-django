@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest, AllianceShout
+from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest, AllianceShout, AllianceRole
 from ..decorators import parse_json, needs_nation
 from ..utils import build_error_response, build_success_response
 
@@ -31,11 +31,11 @@ def get_alliance_by_id(request: HttpRequest, id: int) -> JsonResponse:
 
     if alliance is None:
         return build_error_response(
-            f"Alliance with id {id} not found!", 404
+            f"Alliance with id {id} not found!", HTTPStatus.NOT_FOUND
         )
     else:
         return build_success_response(
-            alliance.to_dict(), 200
+            alliance.to_dict(), HTTPStatus.OK
         )
 
 @needs_nation
@@ -51,7 +51,7 @@ def create_alliance(request: HttpRequest, name: str, icon: str, public: bool) ->
 
     if nation.get_alliance() is not None:
         return build_error_response(
-            "You are already the member of an alliance!", 401
+            "You are already the member of an alliance!", HTTPStatus.BAD_REQUEST
         )
 
     alliance = Alliance.objects.create(
@@ -63,11 +63,11 @@ def create_alliance(request: HttpRequest, name: str, icon: str, public: bool) ->
     alliance_member = AllianceMember.objects.create(
         alliance=alliance,
         nation=nation,
-        role=2 # Owner role
+        role=AllianceRole.OWNER
     )
 
     return build_success_response(
-        f"Successfully created alliance {alliance.name} with id {alliance.id}", 201
+        f"Successfully created alliance {alliance.name} with id {alliance.id}", HTTPStatus.CREATED
     )
 
 @needs_nation
@@ -81,25 +81,25 @@ def join_alliance(request: HttpRequest, id: int) -> JsonResponse:
 
     if nation.get_alliance() is not None:
         return build_error_response(
-            "You are already the member of an alliance!", 401
+            "You are already the member of an alliance!", HTTPStatus.BAD_REQUEST
         )
 
     alliance = Alliance.objects.filter(id=id).first()
 
     if alliance is None:
         return build_error_response(
-            f"Alliance with id {id} not found!", 404
+            f"Alliance with id {id} not found!", HTTPStatus.NOT_FOUND
         )
 
     if alliance.public:
         alliance_member = AllianceMember.objects.create(
             alliance=alliance,
             nation=nation,
-            role=0 # Member role
+            role=AllianceRole.MEMBER
         )
 
         return build_success_response(
-            f"Successfully joined {alliance.name}!", 201
+            f"Successfully joined {alliance.name}!", HTTPStatus.OK
         )
     else:
         join_request = AllianceRequest.objects.create(
@@ -109,7 +109,7 @@ def join_alliance(request: HttpRequest, id: int) -> JsonResponse:
         )
 
         return build_success_response(
-            f"Sent join request to {alliance.name}!", 200
+            f"Sent join request to {alliance.name}!", HTTPStatus.OK
         )
 
 @needs_nation
@@ -123,9 +123,9 @@ def post_alliance_shout(request: HttpRequest, shout_text: str) -> JsonResponse:
 
     alliance_member = AllianceMember.objects.filter(nation=nation).first()
 
-    if alliance_member is None or alliance_member.role == 0:
+    if alliance_member is None or alliance_member.role == AllianceRole.MEMBER:
         return build_error_response(
-            "You are unauthorized to do this!", 401
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
         )
 
     alliance = alliance_member.alliance
@@ -139,7 +139,7 @@ def post_alliance_shout(request: HttpRequest, shout_text: str) -> JsonResponse:
     alliance.save()
 
     return build_success_response(
-        "Posted alliance shout!", 200, safe=False
+        "Posted alliance shout!", HTTPStatus.CREATED, safe=False
     )
 
 @needs_nation
@@ -150,9 +150,9 @@ def get_join_requests(request: HttpRequest) -> JsonResponse:
 
     alliance_member = AllianceMember.objects.filter(nation=nation).first()
 
-    if alliance_member is None or alliance_member.role == 0:
+    if alliance_member is None or alliance_member.role == AllianceRole.MEMBER:
         return build_error_response(
-            "You are unauthorized to do this!", 401
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
         )
 
     alliance = alliance_member.alliance
@@ -167,5 +167,5 @@ def get_join_requests(request: HttpRequest) -> JsonResponse:
         })
 
     return build_success_response(
-        requesting_nations, 200, safe=False
+        requesting_nations, HTTPStatus.OK, safe=False
     )

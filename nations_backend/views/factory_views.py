@@ -101,7 +101,7 @@ def collect_from_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
 
     nation_factories = NationFactory.objects.filter(factory_type=factory_id).all()
 
-    if nation_factories is None or len(nation_factories) == 0:
+    if not nation_factories:
         return build_error_response(
             "Invalid Factory ID", HTTPStatus.BAD_REQUEST
         )
