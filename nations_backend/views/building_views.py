@@ -4,6 +4,7 @@ from http import HTTPStatus
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import cache_page
 
 from ..models import User, Nation, NationBuilding
 from ..factories import Commodities
@@ -13,11 +14,9 @@ from ..utils import build_error_response, build_success_response
 
 @needs_nation
 @require_http_methods(["GET"])
+@cache_page(None) # I'm assuming this is static - Please remove the forever cache if otherwise
 def get_all_buildings(request: HttpRequest) -> JsonResponse:
-    building_info_list = []
-
-    for building in building_manager.get_buildings():
-        building_info_list.append(building.__dict__())
+    building_info_list = [building.__dict__() for building in building_manager.get_buildings()]
 
     # Set safe to false in order to send list 
     return build_success_response(

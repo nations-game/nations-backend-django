@@ -4,6 +4,7 @@ from http import HTTPStatus
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import cache_page
 
 from ..models import User, Nation, NationFactory
 from ..factories import factory_manager, BaseFactory, Commodities
@@ -12,11 +13,9 @@ from ..utils import build_error_response, build_success_response
 
 @needs_nation
 @require_http_methods(["GET"])
+@cache_page(None) # I'm assuming this is static - Please remove the forever cache if otherwise
 def get_all_factories(request: HttpRequest) -> JsonResponse:
-    factory_info_list = []
-
-    for factory in factory_manager.get_factories():
-        factory_info_list.append(factory.__dict__())
+    factory_info_list = [factory.__dict__() for factory in factory_manager.get_factories()]
 
     # Set safe to false in order to send list 
     return build_success_response(

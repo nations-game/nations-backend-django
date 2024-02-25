@@ -4,6 +4,7 @@ from http import HTTPStatus
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import cache_page
 
 from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest, AllianceShout, AllianceRole
 from ..decorators import parse_json, needs_nation
@@ -12,10 +13,7 @@ from ..utils import build_error_response, build_success_response
 @needs_nation
 @require_http_methods(["GET"])
 def get_alliance_list(request: HttpRequest) -> JsonResponse:
-    alliance_list = []
-
-    for alliance_object in Alliance.objects.all():
-        alliance_list.append(alliance_object.to_dict())
+    alliance_list = [alliance.to_dict() for alliance in Alliance.objects.all()]
 
     return build_success_response(
         alliance_list, HTTPStatus.OK, safe=False

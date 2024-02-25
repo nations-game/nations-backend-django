@@ -86,9 +86,8 @@ def get_notifications(request: HttpRequest) -> JsonResponse:
     user: User = request.user
 
     notifications = Notification.objects.filter(user=user)
-    notification_list = []
-    for notif in notifications:
-        notification_list.append(notif.to_dict())
+
+    notification_list = [notif.to_dict() for notif in notifications]
 
     notification_list.sort(key=lambda x: x["timestamp"], reverse=True)
     return build_success_response(
@@ -106,5 +105,5 @@ def read_notification(request: HttpRequest, id: int) -> JsonResponse:
     notif.save()
 
     return build_success_response(
-        "Marked notificaiton as read.", HTTPStatus.OK
+        "Marked notification as read.", HTTPStatus.OK
     )
