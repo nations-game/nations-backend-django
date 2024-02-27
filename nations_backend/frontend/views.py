@@ -6,6 +6,7 @@ from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_http_methods
 from ..decorators import parse_json, needs_auth_frontend, needs_nation_frontend
 from ..models import User, Nation
+from ..buildings import building_manager
 from ..factories import factory_manager
 
 def signup(request: HttpRequest):
@@ -65,8 +66,20 @@ def dashboard(request: HttpRequest):
 
     factory_info_list = list(factory_info_dict.values())
 
+    building_info_list = []
+
+    for nation_building in nation.get_buildings():
+        building_type_id = nation_building.building_type
+        building_type_info = building_manager.get_building_by_id(building_type_id).__dict__()
+        level = nation_building.level
+
+        info_dict = building_type_info
+        info_dict.update({ "level": level })
+        building_info_list.append(info_dict)
+
     info_dict.update({
-        "factories": factory_info_list
+        "factories": factory_info_list,
+        "buildings": building_info_list
     })
     
     return render(request, "dashboard.html", info_dict)

@@ -15,7 +15,6 @@
 </ul>
 
 <h3>Factories</h3>
-{{ factories }}
 <ul>
     {% for factory in factories %}
         <li>
@@ -23,11 +22,20 @@
             <ul>
                 {% for output in factory.info.output %}
                     <li>
-                        {{ output.commodity }} - {{ factory.ticks_run|mul:output.quantity|mul:factory.quantity }} {{ factory.ticks_run }}
+                        {{ output.commodity }} - {{ factory.ticks_run|mul:output.quantity|mul:factory.quantity }}
                     </li>
                 {% endfor %}
             </ul>
             <button onclick="collect('{{ factory.info.id }}')">Collect</button>
+        </li>
+    {% endfor %}
+</ul>
+
+<h3>Buildings</h3>
+<ul>
+    {% for building in buildings %}
+        <li>
+            <strong>{{ building.info.name }}</strong>
         </li>
     {% endfor %}
 </ul>
