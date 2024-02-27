@@ -1,0 +1,84 @@
+{% load mathfilters %}
+<h1>Welcome back, {{ user.username }}!</h1>
+
+<h2>{{ nation.name }}</h2>
+<p>Population {{ nation.population }}</p>
+<p>Happiness Level: {{ nation.happiness }}</p>
+
+<h3>Commodities</h3>
+<ul>
+    <li>{{ nation.money }} Money</li>
+    <li>{{ nation.food }} Food</li>
+    <li>{{ nation.power }} Power</li>
+    <li>{{ nation.building_materials }} Building Materials</li>
+    <li>{{ nation.metal }} Metal</li>
+</ul>
+
+<h3>Factories</h3>
+{{ factories }}
+<ul>
+    {% for factory in factories %}
+        <li>
+            <strong>{{ factory.info.name }}</strong> ({{ factory.quantity }})
+            <ul>
+                {% for output in factory.info.output %}
+                    <li>
+                        {{ output.commodity }} - {{ factory.ticks_run|mul:output.quantity|mul:factory.quantity }} {{ factory.ticks_run }}
+                    </li>
+                {% endfor %}
+            </ul>
+            <button onclick="collect('{{ factory.info.id }}')">Collect</button>
+        </li>
+    {% endfor %}
+</ul>
+
+<label for="factory_id">Choose Factory Type:</label>
+<select name="factory_id" id="factory_id">
+    <option value="farm">Farm</option>
+    <option value="clothes_factory">Clothes Factory</option>
+    <option value="windmill">Windmill</option>
+</select>
+<button id="build_factory_button">Build Factory</button>
+
+<script>
+    document.getElementById("build_factory_button").addEventListener("click", function() {
+        let factoryType = document.getElementById("factory_id").value;
+        let csrfToken = document.getElementsByName("csrfmiddlewaretoken").value;
+        
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "{% url 'build_factory' %}", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-CSRFToken", csrfToken);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log("Request successful");
+            } else {
+                console.error("Request failed");
+            }
+        };
+        xhr.onerror = function () {
+            console.error("Request failed");
+        };
+        xhr.send(JSON.stringify({ factory_id: factoryType }));
+    });
+
+    function collect(factoryType) {
+        let csrfToken = document.getElementsByName("csrfmiddlewaretoken").value;
+        
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "{% url 'collect_from_factory' %}", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-CSRFToken", csrfToken);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log("Request successful");
+            } else {
+                console.error("Request failed");
+            }
+        };
+        xhr.onerror = function () {
+            console.error("Request failed");
+        };
+        xhr.send(JSON.stringify({ factory_id: factoryType }));
+    }
+</script>

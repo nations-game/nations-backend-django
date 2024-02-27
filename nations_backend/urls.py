@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+import django.contrib.auth.urls
 
 from .views import (
     # User views
@@ -93,4 +94,5 @@ urlpatterns = [
     ])),
 
     path("admin/", admin.site.urls),
+    path("app/", include("nations_backend.frontend.urls")),
 ]

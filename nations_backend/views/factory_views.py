@@ -109,7 +109,6 @@ def collect_from_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
     for nation_factory in nation_factories:
         for _ in range(nation_factory.ticks_run):
             for commodity, quantity in base_factory.output:
-                print(commodity.value, quantity)
                 match commodity.value:
                     case "money": 
                         if quantity < nation.money: nation.money += quantity
@@ -123,11 +122,12 @@ def collect_from_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
                         if quantity < nation.metal: nation.metal += quantity
                     case "consumer_goods": 
                         if quantity < nation.consumer_goods: nation.consumer_goods += quantity
+        nation_factory.ticks_run = 0 # removed for debugging
+        nation_factory.save()
     
     nation.save()
-    nation_factory.ticks_run = 0 # removed for debugging
-    nation_factory.save()
+    
 
     return build_success_response(
-        "Collected From Factory", HTTPStatus.CREATED
+        "Collected From Factory", HTTPStatus.OK
     )
