@@ -50,7 +50,7 @@ def signup_user(request: HttpRequest, username: str, email: str, password: str, 
 def login_user(request: HttpRequest, email: str, password: str) -> JsonResponse:
     user: User = authenticate(email=email, password=password)
 
-    if not User:
+    if user is None:
         return build_error_response(
             "Invalid Credentials", HTTPStatus.UNAUTHORIZED
         )
@@ -58,9 +58,10 @@ def login_user(request: HttpRequest, email: str, password: str) -> JsonResponse:
     login(request, user)
     request.session.save()
     
-    return build_success_response(
-        "Logged in", HTTPStatus.OK
-    )
+    return build_success_response({ 
+            "sessionID": request.session.session_key,
+            "maxAge": request.session.get_expiry_age()
+        }, HTTPStatus.OK)
 
 @require_http_methods(["GET"])
 @needs_auth
