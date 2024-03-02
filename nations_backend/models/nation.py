@@ -57,14 +57,15 @@ class Nation(Model):
             # stats
             "population": self.population,
             "happiness": self.happiness,
-            "pending_taxes": self.taxes_to_collect,
+            "pendingTaxes": self.taxes_to_collect,
 
             # Commodities
             "money": self.money,
             "food": self.food,
             "power": self.power,
-            "building_materials": self.building_materials,
-            "metal": self.metal
+            "buildingMaterials": self.building_materials,
+            "metal": self.metal,
+            "consumerGoods": self.consumer_goods
         }
     
     def get_factories(self):

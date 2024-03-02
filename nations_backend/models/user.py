@@ -18,7 +18,8 @@ class User(AbstractUser):
         return {
             "username": self.username,
             "email": self.email,
-            "nation_id": self.nation_id
+            "nation_id": self.nation_id,
+            "id": self.id
         }
     
     def post_notification(self, title: str, details: str) -> "Notification":
