@@ -44,15 +44,15 @@ def signup_user(request: HttpRequest, username: str, email: str, password: str, 
 
 @require_http_methods(["POST"])
 @parse_json([
-    ("email", str),
+    ("username", str),
     ("password", str),
 ])
-def login_user(request: HttpRequest, email: str, password: str) -> JsonResponse:
-    user: User = authenticate(email=email, password=password)
+def login_user(request: HttpRequest, username: str, password: str) -> JsonResponse:
+    user: User = authenticate(username=username, password=password)
 
     if user is None:
         return build_error_response(
-            "Invalid Credentials", HTTPStatus.UNAUTHORIZED
+           "Invalid Credentials", HTTPStatus.UNAUTHORIZED
         )
     
     login(request, user)
