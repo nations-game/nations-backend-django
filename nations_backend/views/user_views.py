@@ -38,9 +38,11 @@ def signup_user(request: HttpRequest, username: str, email: str, password: str, 
     login(request, user)
     request.session.save()
     
-    return build_success_response(
-        user.to_dict(), HTTPStatus.CREATED
-    )
+    return build_success_response({ 
+        "sessionID": request.session.session_key,
+        "maxAge": request.session.get_expiry_age(),
+        "user": user.to_dict()
+    }, HTTPStatus.CREATED)
 
 @require_http_methods(["POST"])
 @parse_json([
