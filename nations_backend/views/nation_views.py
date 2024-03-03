@@ -21,7 +21,7 @@ def create_nation(request: HttpRequest, name: str, system: int) -> JsonResponse:
 
     if user.nation is not None:
         return build_error_response(
-            "User Already Has Nation", HTTPStatus.BAD_REQUEST
+            "User already has a nation!", HTTPStatus.BAD_REQUEST
         )
 
     nation: Nation = Nation.objects.create(
@@ -113,5 +113,5 @@ def collect_taxes(request: HttpRequest) -> JsonResponse:
     nation.save()
 
     return build_success_response(
-        f"Collected {taxes} in taxes!", HTTPStatus.OK
+        nation.to_dict(), HTTPStatus.OK
     )
