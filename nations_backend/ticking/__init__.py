@@ -18,8 +18,8 @@ class TickNation:
         """
         total_tax = 200 # you'll get at least 200 money in taxes
         if self.nation.happiness > 0:
-            population_tax = int(self.nation.population / 20)
-            happiness_tax = 500 * (1 + (self.nation.happiness * 0.1))
+            population_tax = int(self.nation.population / 200)
+            happiness_tax = 50 * (1 + (self.nation.happiness * 0.1))
 
             total_tax += population_tax + happiness_tax
         
