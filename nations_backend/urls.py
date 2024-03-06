@@ -71,7 +71,7 @@ urlpatterns = [
 
         path("factories/", include([
             path("all", get_all_factories, name="get_all_factories"),
-            path("build", build_factory, name="build_factory"),
+            path("build/", build_factory, name="build_factory"),
             path("collect", collect_from_factory, name="collect_from_factory")
         ])),
 

@@ -23,7 +23,7 @@ def get_all_factories(request: HttpRequest) -> JsonResponse:
     )
 
 @needs_nation
-@require_http_methods(["POST"])
+@require_http_methods(["POST", "GET"])
 @parse_json([
     ("factory_id", str)
 ])
