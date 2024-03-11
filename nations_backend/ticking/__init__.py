@@ -55,7 +55,7 @@ class TickNation:
                 self.nation.happiness += 1
 
         # Power consumption
-        power_consumed = int(self.nation.population / 100) # Every 100 citizens use 1 power
+        power_consumed = int(self.nation.population / 500) # Every 500 citizens use 1 power
         if self.nation.power < power_consumed:
             self.nation.power = 0
         else:
@@ -64,10 +64,9 @@ class TickNation:
 
         # Money consumption
         if self.nation.system != 2: # dictatorships don't have money upkeep
-            base_money_consumed = 250 # base of 250 money for upkeep
             money_consumed_by_population = int(self.nation.population / 1000) # Every 1000 citizens cost you a dolla
 
-            total_money_consumed = base_money_consumed + money_consumed_by_population
+            total_money_consumed = money_consumed_by_population
             if self.nation.money < total_money_consumed:
                 self.nation.money = 0
             else:

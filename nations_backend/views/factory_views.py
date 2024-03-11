@@ -111,17 +111,17 @@ def collect_from_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
             for commodity, quantity in base_factory.output:
                 match commodity.value:
                     case "money": 
-                        if quantity < nation.money: nation.money += quantity
+                        nation.money += quantity
                     case "food": 
-                        if quantity < nation.food: nation.food += quantity
+                        nation.food += quantity
                     case "power": 
-                        if quantity < nation.power: nation.power += quantity
+                        nation.power += quantity
                     case "building_materials": 
-                        if quantity < nation.building_materials: nation.building_materials += quantity
+                        nation.building_materials += quantity
                     case "metal": 
-                        if quantity < nation.metal: nation.metal += quantity
+                        nation.metal += quantity
                     case "consumer_goods": 
-                        if quantity < nation.consumer_goods: nation.consumer_goods += quantity
+                        nation.consumer_goods += quantity
         nation_factory.ticks_run = 0 # removed for debugging
         nation_factory.save()
     
