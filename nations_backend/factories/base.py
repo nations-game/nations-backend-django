@@ -16,13 +16,15 @@ class BaseFactory:
             description: str,
             input: List[Tuple[Commodities, int]],
             output: List[Tuple[Commodities, int]],
-            cost: List[Tuple[Commodities, int]]
+            cost: List[Tuple[Commodities, int]],
+            category: str
         ):
         self.name = name
         self.description = description
         self.input = input
         self.output = output
         self.cost = cost
+        self.category = category
 
         self.id = self.name.lower().replace(" ", "_")
 
@@ -58,6 +60,7 @@ class BaseFactory:
             "description": self.description,
             "cost": cost_values,
             "input": input_values,
-            "output": output_values
+            "output": output_values,
+            "category": self.category
         }
 

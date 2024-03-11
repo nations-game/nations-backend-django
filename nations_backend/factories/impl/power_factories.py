@@ -14,6 +14,23 @@ class PowerFactories:
             cost=[
                 (Commodities.MONEY, 365),
                 (Commodities.BUILDING_MATERIALS, 152)
-            ]
+            ],
+            category="power"
+        ))
+        factory_manager.add_factory(BaseFactory(
+            name="Hydro Plant",
+            description="Produces power with the water.",
+            input=[
+                (Commodities.MONEY, 9)
+            ],
+            output=[
+                (Commodities.POWER, 16)
+            ],
+            cost=[
+                (Commodities.MONEY, 504),
+                (Commodities.BUILDING_MATERIALS, 302),
+                (Commodities.METAL, 76),
+            ],
+            category="power"
         ))
         pass

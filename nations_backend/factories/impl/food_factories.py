@@ -9,11 +9,28 @@ class FoodFactories:
                 (Commodities.MONEY, 7)
             ],
             output=[
-                (Commodities.FOOD, 3)
+                (Commodities.FOOD, 7)
             ],
             cost=[
-                (Commodities.MONEY, 734),
-                (Commodities.BUILDING_MATERIALS, 306)
-            ]
+                (Commodities.MONEY, 455),
+                (Commodities.BUILDING_MATERIALS, 250)
+            ],
+            category="food"
+        ))
+        factory_manager.add_factory(BaseFactory(
+            name="Fishery",
+            description="Fishes for fish and produces food.",
+            input=[
+                (Commodities.MONEY, 3),
+                (Commodities.POWER, 6)
+            ],
+            output=[
+                (Commodities.FOOD, 10)
+            ],
+            cost=[
+                (Commodities.MONEY, 600),
+                (Commodities.BUILDING_MATERIALS, 250)
+            ],
+            category="food"
         ))
         pass

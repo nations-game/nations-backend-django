@@ -1,6 +1,6 @@
 from .base import BaseFactory, Commodities
 from typing import List
-from .impl import ConsumerGoodsFactories, FoodFactories, PowerFactories
+from .impl import ConsumerGoodsFactories, FoodFactories, PowerFactories, BuildingMaterialsFactories
 
 class FactoryManager:
     def __init__(self) -> None:
@@ -25,3 +25,4 @@ class FactoryManager:
         FoodFactories(self)
         PowerFactories(self)
         ConsumerGoodsFactories(self)
+        BuildingMaterialsFactories(self)
