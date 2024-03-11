@@ -1,6 +1,7 @@
 import json
 from http import HTTPStatus
 
+from django.db import IntegrityError
 from django.contrib.auth import authenticate, login
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -28,12 +29,17 @@ def signup_user(request: HttpRequest, username: str, email: str, password: str, 
             "Passwords do not match!", HTTPStatus.BAD_REQUEST
         )
     
-    user: User = User.objects.create_user(
-        username=username,
-        email=email,
-        password=password,
-        nation=None
-    )
+    try:
+        user: User = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            nation=None
+        )
+    except IntegrityError:
+        return build_error_response(
+            "Username is not available!", HTTPStatus.BAD_REQUEST
+        )
 
     login(request, user)
     request.session.save()
