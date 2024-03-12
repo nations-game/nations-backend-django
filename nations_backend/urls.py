@@ -40,6 +40,7 @@ from .views import (
 
     # Alliance views
     get_alliance_list,
+    get_alliance_list_pagination,
     create_alliance,
     post_alliance_shout,
     get_join_requests,
@@ -77,6 +78,7 @@ urlpatterns = [
 
         path("alliance/", include([
             path("list", get_alliance_list, name="get_alliance_list"),
+            path("list_page", get_alliance_list_pagination, name="get_alliance_list_page"),
             path("create", create_alliance, name="create_alliance"),
             path("join", join_alliance, name="join_alliance"),
             path("get", get_alliance_by_id, name="get_alliance_by_id"),
