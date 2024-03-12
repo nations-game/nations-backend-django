@@ -22,6 +22,22 @@ def get_alliance_list(request: HttpRequest) -> JsonResponse:
 @needs_nation
 @require_http_methods(["GET"])
 @parse_json([
+    ("page", int),
+    ("amount", int)
+])
+def get_alliance_list_pagination(request: HttpRequest, page: int, amount: int) -> JsonResponse:
+    offset = page * amount
+    alliance_page_list = sorted(Alliance.objects.all(), key=lambda x: x.get_member_count())
+    alliance_page_list = alliance_page_list[offset:offset+amount]
+    alliance_list = [alliance.to_dict() for alliance in alliance_page_list]
+
+    return build_success_response(
+        alliance_list, HTTPStatus.OK, safe=False
+    )
+
+@needs_nation
+@require_http_methods(["GET"])
+@parse_json([
     ("id", int)
 ])
 def get_alliance_by_id(request: HttpRequest, id: int) -> JsonResponse:
