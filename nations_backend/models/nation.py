@@ -48,6 +48,10 @@ class Nation(Model):
     leader = ForeignKey("User", related_name="leader", on_delete=CASCADE)
 
     def to_dict(self):
+        alliance_id = ""
+        alliance = self.get_alliance()
+        if alliance is not None: alliance_id = alliance.id
+
         return {
             # basic info
             "name": self.name,
@@ -65,7 +69,9 @@ class Nation(Model):
             "power": self.power,
             "buildingMaterials": self.building_materials,
             "metal": self.metal,
-            "consumerGoods": self.consumer_goods
+            "consumerGoods": self.consumer_goods,
+
+            "allianceID": alliance_id
         }
     
     def get_factories(self):

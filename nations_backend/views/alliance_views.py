@@ -20,7 +20,7 @@ def get_alliance_list(request: HttpRequest) -> JsonResponse:
     )
 
 @needs_nation
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 @parse_json([
     ("id", int)
 ])

@@ -24,7 +24,7 @@ def get_all_buildings(request: HttpRequest) -> JsonResponse:
     )
 
 @needs_nation
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 @parse_json([
     ("building_id", str)
 ])

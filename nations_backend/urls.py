@@ -89,7 +89,7 @@ urlpatterns = [
 
         path("buildings/", include([
             path("all", get_all_buildings, name="get_all_buildings"),
-            path("build", build_building, name="build_building"),
+            path("build/", build_building, name="build_building"),
         ])),
     ])),
 
