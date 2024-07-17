@@ -115,3 +115,13 @@ def collect_taxes(request: HttpRequest) -> JsonResponse:
     return build_success_response(
         nation.to_dict(), HTTPStatus.OK
     )
+
+@require_http_methods(["POST"])
+@parse_json([
+    ("id", int),
+])
+def get_nation_by_id(request: HttpRequest, id: int) -> JsonResponse:
+    nation: Nation = Nation.objects.get(id=id)
+    return build_success_response(
+        nation.to_dict(), HTTPStatus.OK
+    )

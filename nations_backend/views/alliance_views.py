@@ -36,7 +36,7 @@ def get_alliance_list_pagination(request: HttpRequest, page: int, amount: int) -
     )
 
 @needs_nation
-@require_http_methods(["GET"])
+@require_http_methods(["GET", "POST"])
 @parse_json([
     ("id", int)
 ])
@@ -182,4 +182,31 @@ def get_join_requests(request: HttpRequest) -> JsonResponse:
 
     return build_success_response(
         requesting_nations, HTTPStatus.OK, safe=False
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json([
+    ("id", int)
+])
+def get_alliance_members(request: HttpRequest, id: int) -> JsonResponse:
+    alliance = Alliance.objects.filter(id=id).first()
+
+    if alliance is None:
+        return build_error_response(
+            f"Alliance with id {id} not found!", HTTPStatus.NOT_FOUND
+        )
+    
+    members = AllianceMember.objects.filter(alliance=alliance).all()
+    member_nations = []
+
+    for req in members:
+        nation = req.nation.to_dict()
+        nation.update({
+            "alliance_role": "member" if req.role == 0 else "admin" if req.role == 1 else "owner" if req.role == 2 else "error"
+        })
+        member_nations.append(nation)
+
+    return build_success_response(
+        member_nations, HTTPStatus.OK, safe=False
     )
