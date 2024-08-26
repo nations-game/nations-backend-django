@@ -122,6 +122,16 @@ def collect_taxes(request: HttpRequest) -> JsonResponse:
 ])
 def get_nation_by_id(request: HttpRequest, id: int) -> JsonResponse:
     nation: Nation = Nation.objects.get(id=id)
+
+    nation_dict = nation.to_dict()
+
+    leader_dict = nation.leader.to_dict()
+    del leader_dict["email"]
+
+    nation_dict.update({
+        "leader": leader_dict
+    })
+
     return build_success_response(
-        nation.to_dict(), HTTPStatus.OK
+        nation_dict, HTTPStatus.OK
     )

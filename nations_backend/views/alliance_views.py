@@ -157,7 +157,7 @@ def post_alliance_shout(request: HttpRequest, shout_text: str) -> JsonResponse:
     )
 
 @needs_nation
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 def get_join_requests(request: HttpRequest) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -177,12 +177,45 @@ def get_join_requests(request: HttpRequest) -> JsonResponse:
     for req in join_requests:
         requesting_nations.append({
             "id": req.id,
-            "nation": req.nation.to_dict()
+            "nation": req.requesting_nation.to_dict()
         })
 
     return build_success_response(
         requesting_nations, HTTPStatus.OK, safe=False
     )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json([
+    ("id", int)
+])
+def accept_join_request(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role == AllianceRole.MEMBER:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+
+    alliance = alliance_member.alliance
+    alliance_request = AllianceRequest.objects.filter(id=id).first()
+
+    if alliance_request is not None:
+        alliance_member = AllianceMember.objects.create(
+            alliance=alliance,
+            nation=alliance_request.requesting_nation,
+            role=AllianceRole.MEMBER
+        )
+
+        alliance_request.delete()
+
+        return build_success_response(
+            f"Successfully joined {alliance.name}!", HTTPStatus.OK
+        )
+
 
 @needs_nation
 @require_http_methods(["POST"])
@@ -209,4 +242,53 @@ def get_alliance_members(request: HttpRequest, id: int) -> JsonResponse:
 
     return build_success_response(
         member_nations, HTTPStatus.OK, safe=False
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+def leave_alliance(request: HttpRequest) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    if nation.get_alliance() is None:
+        return build_error_response(
+            "You are not a member of an alliance!", HTTPStatus.BAD_REQUEST
+        )
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None:
+        return build_error_response(
+            "You are not a member of an alliance!", HTTPStatus.BAD_REQUEST
+        )
+
+    if alliance_member.role is AllianceRole.OWNER:
+        return build_error_response(
+            "You are the owner of this alliance, you must transfer ownership or delete it!", HTTPStatus.BAD_REQUEST
+        )
+    
+    alliance_member.delete()
+
+    return build_success_response(
+        "Left alliance!", HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+def delete_alliance(request: HttpRequest) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role != 2:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+
+    alliance = alliance_member.alliance
+    alliance_name = alliance.name
+    alliance.delete()
+    return build_success_response(
+        f"Successfully joined {alliance_name}!", HTTPStatus.OK
     )

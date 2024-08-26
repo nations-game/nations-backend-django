@@ -33,7 +33,6 @@ from .views import (
     collect_taxes,
     nation_buildings,
     get_nation_by_id,
-
     # Fatory views
     get_all_factories,
     build_factory,
@@ -48,6 +47,9 @@ from .views import (
     join_alliance,
     get_alliance_by_id,
     get_alliance_members,
+    leave_alliance,
+    accept_join_request,
+    delete_alliance,
 
     # Buildings views
     get_all_buildings,
@@ -86,10 +88,13 @@ urlpatterns = [
             path("join", join_alliance, name="join_alliance"),
             path("get", get_alliance_by_id, name="get_alliance_by_id"),
             path("members", get_alliance_members, name="get_alliance_members"),
+            path("leave", leave_alliance, name="leave_alliance"),
 
             path("admin/", include([
                 path("shout", post_alliance_shout, name="post_alliance_shout"),
-                path("joinrequests", get_join_requests, name="get_join_requests")
+                path("joinrequests", get_join_requests, name="get_join_requests"),
+                path("acceptrequest", accept_join_request, name="accept_join_request"),
+                path("delete", delete_alliance, name="delete_alliance"),
             ]))
         ])),
 

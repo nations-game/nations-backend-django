@@ -56,7 +56,8 @@ class Nation(Model):
             # basic info
             "name": self.name,
             "system": self.system,
-            "leader_id": self.leader_id,
+            "leaderID": self.leader_id,
+            "nationID": self.id,
 
             # stats
             "population": self.population,
