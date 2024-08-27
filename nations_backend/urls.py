@@ -53,6 +53,7 @@ from .views import (
     transfer_ownership,
     kick_member,
     promote_member,
+    demote_member,
 
     # Buildings views
     get_all_buildings,
@@ -101,6 +102,7 @@ urlpatterns = [
                 path("promote", promote_member, name="promote_member"),
                 path("kick", kick_member, name="kick_member"),
                 path("transfer", transfer_ownership, name="transfer_ownership"),
+                path("demote", demote_member, name="demote_member"),
             ]))
         ])),
 

@@ -311,6 +311,11 @@ def kick_member(request: HttpRequest, id: int) -> JsonResponse:
     
     kicked_nation = Nation.objects.filter(id=id).first()
 
+    if kicked_nation == nation:
+        return build_error_response(
+            "You can't kick yourself!", HTTPStatus.BAD_REQUEST
+        )
+
     if kicked_nation is None:
         return build_error_response(
             "The nation you are trying to kick doesn't exist!", HTTPStatus.BAD_REQUEST
@@ -347,6 +352,11 @@ def promote_member(request: HttpRequest, id: int) -> JsonResponse:
     
     promoted_nation = Nation.objects.filter(id=id).first()
 
+    if promoted_nation == nation:
+        return build_error_response(
+            "You can't promote yourself!", HTTPStatus.BAD_REQUEST
+        )
+
     if promoted_nation is None:
         return build_error_response(
             "The nation you are trying to promote doesn't exist!", HTTPStatus.BAD_REQUEST
@@ -364,6 +374,48 @@ def promote_member(request: HttpRequest, id: int) -> JsonResponse:
 
     return build_success_response(
         f"Successfully promoted {promoted_nation.name}!", HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json([
+    ("id", int)
+])
+def demote_member(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.OWNER:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    demoted_nation = Nation.objects.filter(id=id).first()
+
+    if demoted_nation == nation:
+        return build_error_response(
+            "You can't demote yourself!", HTTPStatus.BAD_REQUEST
+        )
+
+    if demoted_nation is None:
+        return build_error_response(
+            "The nation you are trying to demote doesn't exist!", HTTPStatus.BAD_REQUEST
+        )
+
+    demoted_member = AllianceMember.objects.filter(nation=demoted_nation).first()
+
+    if demoted_member is None:
+        return build_error_response(
+            "The nation you are trying to demote isn't in this alliance!", HTTPStatus.BAD_REQUEST
+        )
+    
+    demoted_member.role = AllianceRole.MEMBER
+    demoted_member.save()
+
+    return build_success_response(
+        f"Successfully demoted {demoted_nation.name}!", HTTPStatus.OK
     )
 
 @needs_nation
