@@ -16,9 +16,6 @@ def parse_json(type_list: list[tuple[str, object]]):
                 if "csrfmiddlewaretoken" in body_dict:
                     del body_dict["csrfmiddlewaretoken"]
 
-                
-                print(body_dict)
-
                 for key, value in body_dict.items():
                     if isinstance(value, list) and len(value) == 1:
                         body_dict[key] = value[0]
@@ -28,7 +25,7 @@ def parse_json(type_list: list[tuple[str, object]]):
                     raise Exception
                 
                 func_arguments = [body_dict[t[0]] for t in type_list]
-            except:
+            except Exception as e:
                 return build_error_response(
                     "Malformed Request", 400
                 )

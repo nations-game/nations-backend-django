@@ -340,7 +340,7 @@ def promote_member(request: HttpRequest, id: int) -> JsonResponse:
 
     alliance_member = AllianceMember.objects.filter(nation=nation).first()
 
-    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+    if alliance_member is None or alliance_member.role < AllianceRole.OWNER:
         return build_error_response(
             "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
         )
