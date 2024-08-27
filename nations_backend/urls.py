@@ -50,6 +50,9 @@ from .views import (
     leave_alliance,
     accept_join_request,
     delete_alliance,
+    transfer_ownership,
+    kick_member,
+    promote_member,
 
     # Buildings views
     get_all_buildings,
@@ -95,6 +98,9 @@ urlpatterns = [
                 path("joinrequests", get_join_requests, name="get_join_requests"),
                 path("acceptrequest", accept_join_request, name="accept_join_request"),
                 path("delete", delete_alliance, name="delete_alliance"),
+                path("promote", promote_member, name="promote_member"),
+                path("kick", kick_member, name="kick_member"),
+                path("transfer", transfer_ownership, name="transfer_ownership"),
             ]))
         ])),
 

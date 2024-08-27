@@ -290,5 +290,118 @@ def delete_alliance(request: HttpRequest) -> JsonResponse:
     alliance_name = alliance.name
     alliance.delete()
     return build_success_response(
-        f"Successfully joined {alliance_name}!", HTTPStatus.OK
+        f"Successfully deleted {alliance_name}!", HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json([
+    ("id", int)
+])
+def kick_member(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    kicked_nation = Nation.objects.filter(id=id).first()
+
+    if kicked_nation is None:
+        return build_error_response(
+            "The nation you are trying to kick doesn't exist!", HTTPStatus.BAD_REQUEST
+        )
+
+    kicked_member = AllianceMember.objects.filter(nation=kicked_nation).first()
+
+    if kicked_member is None:
+        return build_error_response(
+            "The nation you are trying to kick isn't in this alliance!", HTTPStatus.BAD_REQUEST
+        )
+    
+    kicked_member.delete()
+
+    return build_success_response(
+        f"Successfully kicked {kicked_nation.name}!", HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json([
+    ("id", int)
+])
+def promote_member(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    promoted_nation = Nation.objects.filter(id=id).first()
+
+    if promoted_nation is None:
+        return build_error_response(
+            "The nation you are trying to promote doesn't exist!", HTTPStatus.BAD_REQUEST
+        )
+
+    promoted_member = AllianceMember.objects.filter(nation=promoted_nation).first()
+
+    if promoted_member is None:
+        return build_error_response(
+            "The nation you are trying to promote isn't in this alliance!", HTTPStatus.BAD_REQUEST
+        )
+    
+    promoted_member.role = AllianceRole.ADMIN
+    promoted_member.save()
+
+    return build_success_response(
+        f"Successfully promoted {promoted_nation.name}!", HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json([
+    ("id", int)
+])
+def transfer_ownership(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role != AllianceRole.OWNER:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    transferred_nation = Nation.objects.filter(id=id).first()
+
+    if transferred_nation is None:
+        return build_error_response(
+            "The nation you are trying to transfer to doesn't exist!", HTTPStatus.BAD_REQUEST
+        )
+
+    transferred_member = AllianceMember.objects.filter(nation=transferred_nation).first()
+
+    if transferred_member is None:
+        return build_error_response(
+            "The nation you are trying to transfer to isn't in this alliance!", HTTPStatus.BAD_REQUEST
+        )
+    
+    alliance_member.role = AllianceRole.ADMIN
+    alliance_member.save()
+    
+    transferred_member.role = AllianceRole.OWNER
+    transferred_member.save()
+
+    return build_success_response(
+        f"Transferred ownership of {transferred_member.alliance.name} to {transferred_nation.name}!", HTTPStatus.OK
     )
