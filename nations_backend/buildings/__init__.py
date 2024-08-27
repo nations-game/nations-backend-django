@@ -1,6 +1,6 @@
 from .manager import BuildingManager
 from .base import BaseBuilding
-from ..factories import Commodities
+from ..util import Commodities
 
 _building_list = []
 

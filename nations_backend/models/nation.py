@@ -12,6 +12,7 @@ from django.db.models import (
 from .factories import NationFactory
 from .building import NationBuilding
 from .alliance import Alliance, AllianceMember
+from .upgrades import NationUpgrade
 
 class Nation(Model):
     
@@ -40,6 +41,7 @@ class Nation(Model):
     building_materials = IntegerField(default=50_000)
     metal = IntegerField(default=100)
     consumer_goods = IntegerField(default=10_000)
+    land = IntegerField(default=10_000)
 
     # Info for ticking
     taxes_to_collect = IntegerField(default=0)
@@ -71,6 +73,7 @@ class Nation(Model):
             "buildingMaterials": self.building_materials,
             "metal": self.metal,
             "consumerGoods": self.consumer_goods,
+            "land": self.land,
 
             "allianceID": alliance_id
         }
@@ -84,6 +87,9 @@ class Nation(Model):
     def has_building(self, building_id: str) -> bool:
         existing_building = NationBuilding.objects.filter(nation=self, building_type=building_id).first()
         return existing_building is not None
+    
+    def get_upgrades(self):
+        return NationUpgrade.objects.filter(nation=self).all()
     
     def get_alliance(self) -> Alliance:
         alliance_member = AllianceMember.objects.filter(nation=self).first()

@@ -323,6 +323,11 @@ def kick_member(request: HttpRequest, id: int) -> JsonResponse:
 
     kicked_member = AllianceMember.objects.filter(nation=kicked_nation).first()
 
+    if kicked_member.role is AllianceRole.OWNER:
+        return build_error_response(
+            "You cannot kick the owner!", HTTPStatus.BAD_REQUEST
+        )
+
     if kicked_member is None:
         return build_error_response(
             "The nation you are trying to kick isn't in this alliance!", HTTPStatus.BAD_REQUEST
