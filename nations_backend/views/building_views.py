@@ -7,10 +7,10 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
 
 from ..models import User, Nation, NationBuilding
-from ..factories import Commodities
 from ..buildings import building_manager, BaseBuilding
 from ..decorators import parse_json, needs_nation
 from ..utils import build_error_response, build_success_response
+from ..util import Commodities
 
 @needs_nation
 @require_http_methods(["GET"])
@@ -25,9 +25,9 @@ def get_all_buildings(request: HttpRequest) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("building_id", str)
-])
+)
 def build_building(request: HttpRequest, building_id: str) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation

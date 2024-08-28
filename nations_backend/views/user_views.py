@@ -11,13 +11,13 @@ from ..models import User, Notification
 from ..utils import build_error_response, build_success_response
 
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("username", str),
     ("email", str),
     ("password", str),
     ("confirm_password", str),
     ("accepted_tos", bool),
-])
+)
 def signup_user(request: HttpRequest, username: str, email: str, password: str, confirm_password: str, accepted_tos: bool) -> JsonResponse:
     if not accepted_tos:
         return build_error_response(
@@ -51,10 +51,10 @@ def signup_user(request: HttpRequest, username: str, email: str, password: str, 
     }, HTTPStatus.CREATED)
 
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("username", str),
     ("password", str),
-])
+)
 def login_user(request: HttpRequest, username: str, password: str) -> JsonResponse:
     user: User = authenticate(username=username, password=password)
 
@@ -105,9 +105,9 @@ def get_notifications(request: HttpRequest) -> JsonResponse:
 
 @require_http_methods(["POST"])
 @needs_auth
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def read_notification(request: HttpRequest, id: int) -> JsonResponse:
     notif = Notification.objects.filter(id=id).first()
     notif.read = True

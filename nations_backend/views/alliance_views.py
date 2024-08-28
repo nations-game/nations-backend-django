@@ -21,10 +21,10 @@ def get_alliance_list(request: HttpRequest) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("page", int),
     ("amount", int)
-])
+)
 def get_alliance_list_pagination(request: HttpRequest, page: int, amount: int) -> JsonResponse:
     offset = page * amount
     alliance_page_list = sorted(Alliance.objects.all(), key=lambda x: x.get_member_count())
@@ -37,9 +37,9 @@ def get_alliance_list_pagination(request: HttpRequest, page: int, amount: int) -
 
 @needs_nation
 @require_http_methods(["GET", "POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def get_alliance_by_id(request: HttpRequest, id: int) -> JsonResponse:
     alliance = Alliance.objects.filter(id=id).first()
 
@@ -54,11 +54,11 @@ def get_alliance_by_id(request: HttpRequest, id: int) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("name", str),
     ("icon", str),
     ("public", bool),
-])
+)
 def create_alliance(request: HttpRequest, name: str, icon: str, public: bool) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -86,9 +86,9 @@ def create_alliance(request: HttpRequest, name: str, icon: str, public: bool) ->
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def join_alliance(request: HttpRequest, id: int) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -128,9 +128,9 @@ def join_alliance(request: HttpRequest, id: int) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("shout_text", str)
-])
+)
 def post_alliance_shout(request: HttpRequest, shout_text: str) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -186,9 +186,9 @@ def get_join_requests(request: HttpRequest) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def accept_join_request(request: HttpRequest, id: int) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -219,9 +219,9 @@ def accept_join_request(request: HttpRequest, id: int) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def get_alliance_members(request: HttpRequest, id: int) -> JsonResponse:
     alliance = Alliance.objects.filter(id=id).first()
 
@@ -295,9 +295,9 @@ def delete_alliance(request: HttpRequest) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def kick_member(request: HttpRequest, id: int) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -323,9 +323,9 @@ def kick_member(request: HttpRequest, id: int) -> JsonResponse:
 
     kicked_member = AllianceMember.objects.filter(nation=kicked_nation).first()
 
-    if kicked_member.role is AllianceRole.OWNER:
+    if kicked_member.role > AllianceRole.MEMBER:
         return build_error_response(
-            "You cannot kick the owner!", HTTPStatus.BAD_REQUEST
+            "You cannot kick this nation!", HTTPStatus.BAD_REQUEST
         )
 
     if kicked_member is None:
@@ -341,9 +341,9 @@ def kick_member(request: HttpRequest, id: int) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def promote_member(request: HttpRequest, id: int) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -383,9 +383,9 @@ def promote_member(request: HttpRequest, id: int) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def demote_member(request: HttpRequest, id: int) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -425,9 +425,9 @@ def demote_member(request: HttpRequest, id: int) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int)
-])
+)
 def transfer_ownership(request: HttpRequest, id: int) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation

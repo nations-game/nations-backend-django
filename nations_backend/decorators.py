@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpRequest
 from .utils import validate_dict_types, build_error_response
 from .models import User
 
-def parse_json(type_list: list[tuple[str, object]]):
+def parse_json(*type_list: tuple[str, object]):
     def decorator(view_func):
         def wrapper(request: HttpRequest, *args, **kwargs):
             try:

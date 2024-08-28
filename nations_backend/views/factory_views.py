@@ -10,6 +10,7 @@ from ..models import User, Nation, NationFactory
 from ..factories import factory_manager, BaseFactory, Commodities
 from ..decorators import parse_json, needs_nation
 from ..utils import build_error_response, build_success_response
+from ..util import Commodities
 
 @needs_nation
 @require_http_methods(["GET"])
@@ -24,9 +25,9 @@ def get_all_factories(request: HttpRequest) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST", "GET"])
-@parse_json([
+@parse_json(
     ("factory_id", str)
-])
+)
 def build_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation
@@ -89,9 +90,9 @@ def build_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
 
 @needs_nation
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("factory_id", str)
-])
+)
 def collect_from_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
     user: User = request.user
     nation: Nation = user.nation

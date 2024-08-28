@@ -7,15 +7,17 @@ from django.views.decorators.http import require_http_methods
 from ..decorators import parse_json, needs_auth, needs_nation
 from ..factories import BaseFactory, factory_manager
 from ..buildings import BaseBuilding, building_manager
-from ..models import User, Nation, NationFactory
+from ..models import User, Nation, NationFactory, NationUpgrade
 from ..utils import build_error_response, build_success_response
+from ..util import Commodities
+from ..upgrades import upgrade_manager
 
 @needs_auth
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("name", str),
     ("system", int),
-])
+)
 def create_nation(request: HttpRequest, name: str, system: int) -> JsonResponse:
     user: User = request.user
 
@@ -117,9 +119,9 @@ def collect_taxes(request: HttpRequest) -> JsonResponse:
     )
 
 @require_http_methods(["POST"])
-@parse_json([
+@parse_json(
     ("id", int),
-])
+)
 def get_nation_by_id(request: HttpRequest, id: int) -> JsonResponse:
     nation: Nation = Nation.objects.get(id=id)
 
@@ -134,4 +136,70 @@ def get_nation_by_id(request: HttpRequest, id: int) -> JsonResponse:
 
     return build_success_response(
         nation_dict, HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json(
+    ("upgrade_id", str)
+)
+def upgrade(request: HttpRequest, upgrade_id: str) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    nation_upgrade = NationUpgrade.objects.filter(nation=nation, upgrade_type=upgrade_id).first()
+
+    if nation_upgrade is None:
+        nation_upgrade = NationUpgrade.objects.create(
+            nation=nation,
+            upgrade_type=upgrade_id,
+            level=0
+        )
+
+    upgrade = upgrade_manager.get_upgrade_by_id(upgrade_id)
+
+    commodity: Commodities
+    quantity: int
+    can_afford = True
+    for commodity, quantity in upgrade.get_cost(max(1, nation_upgrade.level)):
+        match commodity.value:
+            case "money": 
+                if quantity > nation.money: can_afford = False
+            case "food": 
+                if quantity > nation.food: can_afford = False
+            case "power": 
+                if quantity > nation.power: can_afford = False
+            case "building_materials": 
+                if quantity > nation.building_materials: can_afford = False
+            case "metal": 
+                if quantity > nation.metal: can_afford = False
+            case "consumer_goods": 
+                if quantity > nation.consumer_goods: can_afford = False
+
+    if not can_afford:
+        return build_error_response(
+            "You can't afford that!", HTTPStatus.BAD_REQUEST
+        )
+
+    for commodity, quantity in upgrade.get_cost(max(1, nation_upgrade.level)):
+        match commodity.value:
+            case "money": 
+                if quantity < nation.money: nation.money -= quantity
+            case "food": 
+                if quantity < nation.food: nation.food -= quantity
+            case "power": 
+                if quantity < nation.power: nation.power -= quantity
+            case "building_materials": 
+                if quantity < nation.building_materials: nation.building_materials -= quantity
+            case "metal": 
+                if quantity < nation.metal: nation.metal -= quantity
+            case "consumer_goods": 
+                if quantity < nation.consumer_goods: nation.consumer_goods -= quantity
+    
+    nation.save()
+    nation_upgrade.level += 1
+    nation_upgrade.save()
+
+    return build_success_response(
+        "Upgraded!", HTTPStatus.CREATED
     )
