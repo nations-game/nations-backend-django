@@ -203,3 +203,25 @@ def upgrade(request: HttpRequest, upgrade_id: str) -> JsonResponse:
     return build_success_response(
         "Upgraded!", HTTPStatus.CREATED
     )
+
+@needs_nation
+@require_http_methods(["GET"])
+def upgrades(request: HttpRequest) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    nation_upgrades = NationUpgrade.objects.filter(nation=nation).all()
+
+    upgrade_list: list[dict] = []
+    
+    for upgrade in nation_upgrades:
+        upgrade_list += upgrade_manager.get_upgrade_by_id(upgrade.upgrade_type).to_dict(upgrade.level)
+
+    for upgrade in upgrade_manager.get_upgrades():
+        for nation_upgrade in upgrade_list:
+            if not upgrade.id in nation_upgrade.values():
+                upgrade_list += upgrade_manager.get_upgrade_by_id(upgrade.id).to_dict(0)
+
+    return build_success_response(
+        upgrade_list, safe=False, status_code=HTTPStatus.OK
+    )

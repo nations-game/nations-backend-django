@@ -33,11 +33,13 @@ from .views import (
     collect_taxes,
     nation_buildings,
     get_nation_by_id,
+    upgrade,
+    upgrades,
+
     # Fatory views
     get_all_factories,
     build_factory,
     collect_from_factory,
-    upgrade,
 
     # Alliance views
     get_alliance_list,
@@ -78,7 +80,8 @@ urlpatterns = [
             path("collecttaxes", collect_taxes, name="collect_taxes"),
             path("buildings", nation_buildings, name="nation_buildings"),
             path("get", get_nation_by_id, name="get_nation_by_id"),
-            path("upgrade", upgrade, name="upgrade")
+            path("upgrade", upgrade, name="upgrade"),
+            path("upgrades", upgrades, name="upgrades")
         ])),
 
         path("factories/", include([
