@@ -10,9 +10,19 @@ from ..models import Nation
 from ..ticking import TickNation
 from ..utils import build_error_response, build_success_response
 from http import HTTPStatus
+import json
+
+with open("secrets.json") as file:
+    data = json.load(file)
+    secret_key = data.get("secret")
 
 @require_http_methods(["POST"])
 def tick_nations(request: HttpRequest) -> JsonResponse:
+    if not request.headers.get("secret") == secret_key:
+        return build_error_response(
+        "You don't have permission for this", HTTPStatus.UNAUTHORIZED
+    )
+
     nations: list[Nation] = Nation.objects.all()
     [TickNation(nation).run_tick() for nation in nations]
 
