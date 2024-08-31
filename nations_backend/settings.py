@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-5tnj)r)*k-018+w-(3)ycwrfepbp*uv(2k)!5a51q$1#!q4n15
 # SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 AUTH_USER_MODEL = "nations_backend.User"
 
@@ -33,6 +33,7 @@ AUTH_USER_MODEL = "nations_backend.User"
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -139,3 +140,5 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = "/"
+
+ASGI_APPLICATION = "nations_backend.asgi.application"
