@@ -28,7 +28,7 @@ class BaseUpgrade:
         for commodity, quantity in self.base_cost:
             cost_values.append({
                 "commodity": commodity.value,
-                "quantity": quantity * level
+                "quantity": quantity * (1 + ((level) * 0.1))
             })
 
         return cost_values
@@ -41,6 +41,6 @@ class BaseUpgrade:
             "name":  self.name,
             "description": self.description,
             "cost": cost_values,
-            "category": self.category
+            "level": level
         }
 

@@ -42,6 +42,7 @@ class Nation(Model):
     metal = IntegerField(default=100)
     consumer_goods = IntegerField(default=10_000)
     land = IntegerField(default=10_000)
+    unused_land = IntegerField(default=10_000)
 
     # Info for ticking
     taxes_to_collect = IntegerField(default=0)
@@ -74,6 +75,7 @@ class Nation(Model):
             "metal": self.metal,
             "consumerGoods": self.consumer_goods,
             "land": self.land,
+            "unusedLand": self.unused_land,
 
             "allianceID": alliance_id
         }

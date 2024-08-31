@@ -56,6 +56,8 @@ def build_building(request: HttpRequest, building_id: str) -> JsonResponse:
                 if quantity > nation.metal: can_afford = False
             case "consumer_goods": 
                 if quantity > nation.consumer_goods: can_afford = False
+            case "unused_land": 
+                if quantity > nation.unused_land: can_afford = False
                 
     if not can_afford:
         return build_error_response(
@@ -76,6 +78,8 @@ def build_building(request: HttpRequest, building_id: str) -> JsonResponse:
                 if quantity < nation.metal: nation.metal -= quantity
             case "consumer_goods": 
                 if quantity < nation.consumer_goods: nation.consumer_goods -= quantity
+            case "unused_land": 
+                if quantity < nation.unused_land: nation.unused_land -= quantity
     
     nation.save()
 

@@ -20,6 +20,7 @@ class BaseFactory:
         self.category = category
 
         self.id = self.name.lower().replace(" ", "_")
+        # self.cost.append((Commodities.UNUSED_LAND, 1))
 
     def __str__(self) -> str: return self.name
 
@@ -45,7 +46,6 @@ class BaseFactory:
                 "commodity": commodity.value,
                 "quantity": quantity
             })
-
 
         return {
             "id": self.id,

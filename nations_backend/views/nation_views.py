@@ -175,6 +175,8 @@ def upgrade(request: HttpRequest, upgrade_id: str) -> JsonResponse:
                 if quantity > nation.metal: can_afford = False
             case "consumer_goods": 
                 if quantity > nation.consumer_goods: can_afford = False
+            case "unused_land": 
+                if quantity > nation.unused_land: can_afford = False
 
     if not can_afford:
         return build_error_response(
@@ -195,10 +197,14 @@ def upgrade(request: HttpRequest, upgrade_id: str) -> JsonResponse:
                 if quantity < nation.metal: nation.metal -= quantity
             case "consumer_goods": 
                 if quantity < nation.consumer_goods: nation.consumer_goods -= quantity
+            case "unused_land": 
+                if quantity < nation.unused_land: nation.unused_land -= quantity
     
     nation.save()
     nation_upgrade.level += 1
     nation_upgrade.save()
+
+    upgrade_manager.perform_upgrade(nation=nation, nation_upgrade=nation_upgrade, upgrade_id=upgrade_id)
 
     return build_success_response(
         "Upgraded!", HTTPStatus.CREATED
@@ -215,12 +221,15 @@ def upgrades(request: HttpRequest) -> JsonResponse:
     upgrade_list: list[dict] = []
     
     for upgrade in nation_upgrades:
-        upgrade_list += upgrade_manager.get_upgrade_by_id(upgrade.upgrade_type).to_dict(upgrade.level)
+        upgrade_list.append(upgrade_manager.get_upgrade_by_id(upgrade.upgrade_type).to_dict(upgrade.level))
 
     for upgrade in upgrade_manager.get_upgrades():
+        found = False
         for nation_upgrade in upgrade_list:
-            if not upgrade.id in nation_upgrade.values():
-                upgrade_list += upgrade_manager.get_upgrade_by_id(upgrade.id).to_dict(0)
+            if upgrade.id in nation_upgrade.values():
+                found = True
+        if not found:
+            upgrade_list.append(upgrade_manager.get_upgrade_by_id(upgrade.id).to_dict(0))
 
     return build_success_response(
         upgrade_list, safe=False, status_code=HTTPStatus.OK

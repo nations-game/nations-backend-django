@@ -13,7 +13,8 @@ class FoodFactories:
             ],
             cost=[
                 (Commodities.MONEY, 455),
-                (Commodities.BUILDING_MATERIALS, 250)
+                (Commodities.BUILDING_MATERIALS, 250),
+                (Commodities.UNUSED_LAND, 8)
             ],
             category="food"
         ))
@@ -29,7 +30,8 @@ class FoodFactories:
             ],
             cost=[
                 (Commodities.MONEY, 600),
-                (Commodities.BUILDING_MATERIALS, 250)
+                (Commodities.BUILDING_MATERIALS, 250),
+                (Commodities.UNUSED_LAND, 1)
             ],
             category="food"
         ))

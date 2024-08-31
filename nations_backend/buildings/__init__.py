@@ -9,7 +9,9 @@ _building_list.append(
         name="Research Lab",
         description="Research different technologies.",
         max_level=5,
-        cost=[]
+        cost=[
+            (Commodities.UNUSED_LAND, 1)
+        ]
     )
 )
 
@@ -20,7 +22,8 @@ _building_list.append(
         max_level=5,
         cost=[
             (Commodities.MONEY, 500),
-            (Commodities.BUILDING_MATERIALS, 250)
+            (Commodities.BUILDING_MATERIALS, 250),
+            (Commodities.UNUSED_LAND, 5)
         ]
     )
 )

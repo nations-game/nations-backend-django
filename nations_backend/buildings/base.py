@@ -15,6 +15,7 @@ class BaseBuilding:
         self.cost = cost
 
         self.id = self.name.lower().replace(" ", "_")
+        # self.cost.append((Commodities.UNUSED_LAND, 1))
 
     def get_upgrade_cost(self, current_level: int) -> list[tuple[Commodities, int]]:
         multiplier = 1 + (current_level * 0.1)

@@ -7,3 +7,4 @@ class Commodities(Enum):
     BUILDING_MATERIALS = "building_materials"
     METAL = "metal"
     CONSUMER_GOODS = "consumer_goods"
+    UNUSED_LAND = "unused_land"

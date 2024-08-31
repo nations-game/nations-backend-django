@@ -13,7 +13,8 @@ class BuildingMaterialsFactories:
                 (Commodities.BUILDING_MATERIALS, 8)
             ],
             cost=[
-                (Commodities.MONEY, 952)
+                (Commodities.MONEY, 952),
+                (Commodities.UNUSED_LAND, 10)
             ],
             category="bm"
         ))
@@ -28,7 +29,8 @@ class BuildingMaterialsFactories:
                 (Commodities.BUILDING_MATERIALS, 8)
             ],
             cost=[
-                (Commodities.MONEY, 952)
+                (Commodities.MONEY, 952),
+                (Commodities.UNUSED_LAND, 10)
             ],
             category="bm"
         ))

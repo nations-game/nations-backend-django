@@ -13,7 +13,8 @@ class PowerFactories:
             ],
             cost=[
                 (Commodities.MONEY, 365),
-                (Commodities.BUILDING_MATERIALS, 152)
+                (Commodities.BUILDING_MATERIALS, 152),
+                (Commodities.UNUSED_LAND, 1)
             ],
             category="power"
         ))
@@ -30,6 +31,7 @@ class PowerFactories:
                 (Commodities.MONEY, 504),
                 (Commodities.BUILDING_MATERIALS, 302),
                 (Commodities.METAL, 76),
+                (Commodities.UNUSED_LAND, 5)
             ],
             category="power"
         ))

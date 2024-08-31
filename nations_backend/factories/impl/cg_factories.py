@@ -14,7 +14,8 @@ class ConsumerGoodsFactories:
             ],
             cost=[
                 (Commodities.MONEY, 396),
-                (Commodities.BUILDING_MATERIALS, 238)
+                (Commodities.BUILDING_MATERIALS, 238),
+                (Commodities.UNUSED_LAND, 2)
             ],
             category="cg"
         ))
@@ -31,7 +32,8 @@ class ConsumerGoodsFactories:
             cost=[
                 (Commodities.MONEY, 396),
                 (Commodities.BUILDING_MATERIALS, 238),
-                (Commodities.METAL, 76)
+                (Commodities.METAL, 76),
+                (Commodities.UNUSED_LAND, 5)
             ],
             category="cg"
         ))
