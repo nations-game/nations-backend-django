@@ -19,6 +19,9 @@ from django.urls import path, include
 import django.contrib.auth.urls
 
 from .views import (
+    # Misc views
+    tick_nations,
+    
     # User views
     signup_user,
     login_user,
@@ -65,6 +68,8 @@ from .views import (
 
 urlpatterns = [
     path("api/", include([
+        path("tick", tick_nations, name="tick_nations"),
+
         path("user/", include([
             path("signup", signup_user, name="signup"),
             path("login", login_user, name="login"),

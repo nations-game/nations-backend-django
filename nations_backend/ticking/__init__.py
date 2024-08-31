@@ -1,5 +1,8 @@
 from ..factories import BaseFactory, factory_manager
 from ..models import Nation, NationFactory
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 
 class TickNation:
     def __init__(self, nation: Nation) -> None:
@@ -8,18 +11,20 @@ class TickNation:
 
     def run_tick(self) -> None:
         self.factory_production()
-        self.nation.happiness = min(self.nation.happiness, 10)
-        self.nation.happiness = max(self.nation.happiness, -5)
         self.population_consumption()
-        self.nation.happiness = min(self.nation.happiness, 10)
-        self.nation.happiness = max(self.nation.happiness, -5)
         self.tax_accumulation()
-        self.nation.happiness = min(self.nation.happiness, 10)
-        self.nation.happiness = max(self.nation.happiness, -5)
         self.population_growth()
-        self.nation.happiness = min(self.nation.happiness, 10)
-        self.nation.happiness = max(self.nation.happiness, -5)
         self.nation.save()
+
+        message = "test"
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "nation_updates_group",
+            {
+                "type": "nation_updated", 
+                "nation": self.nation 
+            }
+        )
 
     def tax_accumulation(self) -> None:
         """
