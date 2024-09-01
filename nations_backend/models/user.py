@@ -1,3 +1,5 @@
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (
     ForeignKey, 
@@ -28,6 +30,15 @@ class User(AbstractUser):
             title=title,
             details=details,
             timestamp=time.time()
+        )
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "nation_updates_group",
+            {
+                "type": "notification_received", 
+                "notification": notification
+            }
         )
 
         return notification

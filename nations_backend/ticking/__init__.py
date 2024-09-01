@@ -16,7 +16,6 @@ class TickNation:
         self.population_growth()
         self.nation.save()
 
-        message = "test"
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "nation_updates_group",

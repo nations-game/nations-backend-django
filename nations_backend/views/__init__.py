@@ -14,7 +14,7 @@ import json
 
 with open("secrets.json") as file:
     data = json.load(file)
-    secret_key = data.get("secret")
+    secret_key = data.get("tick_secret")
 
 @require_http_methods(["POST"])
 def tick_nations(request: HttpRequest) -> JsonResponse:
