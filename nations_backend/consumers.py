@@ -5,6 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from .models import User, Nation, Notification
 from asgiref.sync import async_to_sync
 from django.contrib.sessions.models import Session
+from .factories import factory_manager
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -48,8 +49,27 @@ class NationMessagesConsumer(WebsocketConsumer):
 
     def nation_updated(self, event):
         nation: Nation = event["nation"]
-        if nation.leader == self.user:
-            self.send(text_data=json.dumps({ "action": "nationUpdated", "nation": nation.to_dict() }))
+        if nation.leader.id == self.user.id:
+            nation_dict = nation.to_dict()
+            factory_info_dict = {}
+            for nation_factory in nation.get_factories():
+                factory_type_id = nation_factory.factory_type
+                factory_type_info = factory_manager.get_factory_by_id(factory_type_id).__dict__()
+                ticks_run = nation_factory.ticks_run
+
+                if factory_type_id not in factory_info_dict:
+                    factory_info_dict[factory_type_id] = {
+                        "info": factory_type_info,
+                        "ticks_run": ticks_run,
+                        "quantity": 1 
+                    }
+                else:
+                    factory_info_dict[factory_type_id]["ticks_run"] += ticks_run
+                    factory_info_dict[factory_type_id]["quantity"] += 1
+
+            factory_info_list = list(factory_info_dict.values())
+            nation_dict.update({ "factories": factory_info_list })
+            self.send(text_data=json.dumps({ "action": "nationUpdated", "nation": nation_dict }))
 
     def notification_received(self, event):
         notification: Notification = event["notification"]

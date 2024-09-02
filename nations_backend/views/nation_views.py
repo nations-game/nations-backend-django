@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 from ..decorators import parse_json, needs_auth, needs_nation
 from ..factories import BaseFactory, factory_manager
 from ..buildings import BaseBuilding, building_manager
@@ -114,6 +117,16 @@ def collect_taxes(request: HttpRequest) -> JsonResponse:
     nation.taxes_to_collect = 0
     nation.save()
 
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "nation_updates_group",
+        {
+            "type": "nation_updated", 
+            "nation": nation 
+        }
+    )
+
     return build_success_response(
         nation.to_dict(), HTTPStatus.OK
     )
@@ -205,6 +218,15 @@ def upgrade(request: HttpRequest, upgrade_id: str) -> JsonResponse:
     nation_upgrade.save()
 
     upgrade_manager.perform_upgrade(nation=nation, nation_upgrade=nation_upgrade, upgrade_id=upgrade_id)
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "nation_updates_group",
+        {
+            "type": "nation_updated", 
+            "nation": nation 
+        }
+    )
 
     return build_success_response(
         "Upgraded!", HTTPStatus.CREATED

@@ -6,6 +6,9 @@ from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 from ..models import User, Nation, NationFactory
 from ..factories import factory_manager, BaseFactory, Commodities
 from ..decorators import parse_json, needs_nation
@@ -131,7 +134,15 @@ def collect_from_factory(request: HttpRequest, factory_id: str) -> JsonResponse:
         nation_factory.save()
     
     nation.save()
-    
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "nation_updates_group",
+        {
+            "type": "nation_updated", 
+            "nation": nation 
+        }
+    )
 
     return build_success_response(
         "Collected From Factory", HTTPStatus.OK

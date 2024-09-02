@@ -14,6 +14,8 @@ class TickNation:
         self.population_consumption()
         self.tax_accumulation()
         self.population_growth()
+        self.nation.happiness = min(self.nation.happiness, 10)
+        self.nation.happiness = max(self.nation.happiness, -5)
         self.nation.save()
 
         channel_layer = get_channel_layer()

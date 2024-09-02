@@ -6,6 +6,9 @@ from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 from ..models import User, Nation, NationBuilding
 from ..buildings import building_manager, BaseBuilding
 from ..decorators import parse_json, needs_nation
@@ -82,6 +85,15 @@ def build_building(request: HttpRequest, building_id: str) -> JsonResponse:
                 if quantity < nation.unused_land: nation.unused_land -= quantity
     
     nation.save()
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        "nation_updates_group",
+        {
+            "type": "nation_updated", 
+            "nation": nation 
+        }
+    )
 
     nation_building = NationBuilding.objects.create(
         nation=nation,
