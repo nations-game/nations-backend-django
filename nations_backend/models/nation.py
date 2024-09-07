@@ -13,6 +13,7 @@ from .factories import NationFactory
 from .building import NationBuilding
 from .alliance import Alliance, AllianceMember
 from .upgrades import NationUpgrade
+from .military import NationDivision
 
 class Nation(Model):
     
@@ -82,6 +83,13 @@ class Nation(Model):
     
     def get_factories(self):
         return NationFactory.objects.filter(nation=self).all()
+    
+    def get_divisions(self):
+        return NationDivision.objects.filter(nation=self).all()
+    
+    def get_reserve_division(self):
+        return NationDivision.objects.filter(nation=self, name="Reserve").first()
+
     
     def get_buildings(self):
         return NationBuilding.objects.filter(nation=self).all()

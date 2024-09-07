@@ -1,4 +1,4 @@
-from .base import BaseFactory, Commodities
+from .base import BaseFactory
 from typing import List
 from .impl import ConsumerGoodsFactories, FoodFactories, PowerFactories, BuildingMaterialsFactories
 

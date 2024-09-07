@@ -64,6 +64,10 @@ from .views import (
     # Buildings views
     get_all_buildings,
     build_building,
+
+    # Military Views,
+    get_all_units,
+    nation_divisions
 )
 
 urlpatterns = [
@@ -120,6 +124,11 @@ urlpatterns = [
             path("all", get_all_buildings, name="get_all_buildings"),
             path("build/", build_building, name="build_building"),
         ])),
+
+        path("military/", include([
+            path("allUnits", get_all_units, name="get_all_units"),
+            path("divisions", nation_divisions, name="nation_divisions"),
+        ]))
     ])),
 
     path("admin/", admin.site.urls),

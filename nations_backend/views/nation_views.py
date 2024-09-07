@@ -10,7 +10,7 @@ from asgiref.sync import async_to_sync
 from ..decorators import parse_json, needs_auth, needs_nation
 from ..factories import BaseFactory, factory_manager
 from ..buildings import BaseBuilding, building_manager
-from ..models import User, Nation, NationFactory, NationUpgrade
+from ..models import User, Nation, NationFactory, NationUpgrade, NationDivision
 from ..utils import build_error_response, build_success_response
 from ..util import Commodities
 from ..upgrades import upgrade_manager
@@ -37,6 +37,11 @@ def create_nation(request: HttpRequest, name: str, system: int) -> JsonResponse:
     
     user.nation = nation
     user.save()
+
+    reserves_divsion = NationDivision.objects.create(
+        nation=nation,
+        name="Reserve"
+    )
 
     return build_success_response(
         nation.to_dict(), HTTPStatus.CREATED
