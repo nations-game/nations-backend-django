@@ -37,5 +37,8 @@ class DivisionUnit(Model):
         data = unit_type_data.__dict__()
         data.update({
             "health": self.health,
-            "division": self.division.id
+            "division": self.division.id,
+            "id": self.id
         })
+
+        return data

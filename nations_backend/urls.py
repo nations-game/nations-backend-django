@@ -67,7 +67,10 @@ from .views import (
 
     # Military Views,
     get_all_units,
-    nation_divisions
+    nation_divisions,
+    add_division,
+    recruit_unit,
+    move_unit,
 )
 
 urlpatterns = [
@@ -128,6 +131,9 @@ urlpatterns = [
         path("military/", include([
             path("allUnits", get_all_units, name="get_all_units"),
             path("divisions", nation_divisions, name="nation_divisions"),
+            path("addDivision", add_division, name="add_division"),
+            path("recruitUnit", recruit_unit, name="recruit_unit"),
+            path("moveUnit", move_unit, name="move_unit"),
         ]))
     ])),
 
