@@ -16,6 +16,9 @@ class NationDivision(Model):
     def get_units(self):
         return DivisionUnit.objects.filter(division=self).all()
     
+    def is_reserve(self) -> bool:
+        return self.name == "Reserve"
+    
     def to_dict(self) -> dict:
         units_list = []
         for unit in self.get_units():

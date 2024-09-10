@@ -168,6 +168,11 @@ def move_unit(request: HttpRequest, unit_id: int, old_div: str, new_div: str) ->
             "Division to move to does not exist!", HTTPStatus.NOT_FOUND
         )
     
+    if len(new_division.get_units()) == 10 and not new_division.is_reserve():
+        return build_error_response(
+            "New division already has 10 units!", HTTPStatus.NOT_FOUND
+        )
+    
     unit.division = new_division
 
     unit.save()
