@@ -167,12 +167,8 @@ def get_inbox(request: HttpRequest, page: int, amount: int) -> JsonResponse:
     user: User = request.user
     
     offset = page * amount
-    msgs = sorted(Message.objects.filter(recipient=user).all(), key=lambda x: x.timestamp)
-
-    offset = max(0, offset)
-    end_index = min(offset + amount, len(msgs))
-    msgs_list = msgs[offset:end_index]
-    msgs_list = [msg.to_short_dict() for msg in msgs_list]
+    msgs = Message.objects.filter(recipient=user).order_by("-timestamp")[offset:offset+amount]
+    msgs_list = [msg.to_short_dict() for msg in msgs]
 
     return build_success_response(
         msgs_list, HTTPStatus.OK, safe=False
@@ -186,14 +182,10 @@ def get_inbox(request: HttpRequest, page: int, amount: int) -> JsonResponse:
 )
 def get_sent_messages(request: HttpRequest, page: int, amount: int) -> JsonResponse:
     user: User = request.user
-    
-    offset = page * amount
-    msgs = sorted(Message.objects.filter(sender=user).all(), key=lambda x: x.timestamp)
 
-    offset = max(0, offset)
-    end_index = min(offset + amount, len(msgs))
-    msgs_list = msgs[offset:end_index]
-    msgs_list = [msg.to_short_dict() for msg in msgs_list]
+    offset = page * amount
+    msgs = Message.objects.filter(sender=user).order_by("-timestamp")[offset:offset+amount]
+    msgs_list = [msg.to_short_dict() for msg in msgs]
 
     return build_success_response(
         msgs_list, HTTPStatus.OK, safe=False
@@ -221,7 +213,7 @@ def get_message(request: HttpRequest, id: int) -> JsonResponse:
 def send_system_message(self, recipient_id: int, subject: str, text: str) -> None:
     recipient = User.objects.filter(id=recipient_id).first()
 
-    if not recipient_id: return
+    if not recipient: return
 
     Message.objects.create(
         sender=None,
