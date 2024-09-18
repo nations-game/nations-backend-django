@@ -28,6 +28,10 @@ from .views import (
     user_info,
     get_notifications,
     read_notification,
+    get_message,
+    get_inbox,
+    send_message,
+    get_sent_messages,
 
     # Nation views
     create_nation,
@@ -39,7 +43,7 @@ from .views import (
     upgrade,
     upgrades,
 
-    # Fatory views
+    # Factory views
     get_all_factories,
     build_factory,
     collect_from_factory,
@@ -83,6 +87,10 @@ urlpatterns = [
             path("@<str:username>/info", user_info, name="info"),
             path("notifications", get_notifications, name="get_notifications"),
             path("readnotification", read_notification, name="read_notification"),
+            path("getmessage", get_message, name="get_message"),
+            path("sendmessage", send_message, name="send_message"),
+            path("inbox", get_inbox, name="inbox"),
+            path("sentmessages", get_sent_messages, name="get_sent_messages"),
         ])),
         
         path("nation/", include([
