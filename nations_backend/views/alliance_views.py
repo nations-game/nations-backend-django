@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
+from django.db.models import Count
 
 from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest, AllianceShout, AllianceRole
 from ..decorators import parse_json, needs_nation
@@ -27,8 +28,8 @@ def get_alliance_list(request: HttpRequest) -> JsonResponse:
 )
 def get_alliance_list_pagination(request: HttpRequest, page: int, amount: int) -> JsonResponse:
     offset = page * amount
-    alliance_page_list = sorted(Alliance.objects.all(), key=lambda x: x.get_member_count())
-    alliance_page_list = alliance_page_list[offset:offset+amount]
+    
+    alliance_page_list = Alliance.objects.annotate(member_count=Count('alliancemember')).order_by('-member_count')[offset:offset+amount]
     alliance_list = [alliance.to_dict() for alliance in alliance_page_list]
 
     return build_success_response(

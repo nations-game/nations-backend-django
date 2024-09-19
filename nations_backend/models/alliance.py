@@ -17,8 +17,7 @@ class Alliance(Model):
     shout = ForeignKey("AllianceShout", on_delete=CASCADE, blank=True, null=True)
 
     def get_member_count(self):
-        members = self.get_alliance_members()
-        return len(members)
+        return AllianceMember.objects.filter(alliance=self).count()
     
     def get_pending_requests(self):
         return AllianceRequest.objects.filter(alliance=self).all()
