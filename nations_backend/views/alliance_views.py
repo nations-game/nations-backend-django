@@ -5,9 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpRequest ,JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
-from django.db.models import Count
+from django.db.models import Count, Q
 
-from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest, AllianceShout, AllianceRole
+from ..models import User, Nation, Alliance, AllianceMember, AllianceRequest, AllianceShout, AllianceRole, AllianceAllyRequest, AllianceAlly, AllianceEnemy
 from ..decorators import parse_json, needs_nation
 from ..utils import build_error_response, build_success_response
 
@@ -72,7 +72,8 @@ def create_alliance(request: HttpRequest, name: str, icon: str, public: bool) ->
     alliance = Alliance.objects.create(
         name=name,
         icon=icon,
-        public=public
+        public=public,
+        owner=nation
     )
 
     alliance_member = AllianceMember.objects.create(
@@ -440,6 +441,8 @@ def transfer_ownership(request: HttpRequest, id: int) -> JsonResponse:
             "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
         )
     
+    alliance: Alliance = alliance_member.alliance
+    
     transferred_nation = Nation.objects.filter(id=id).first()
 
     if transferred_nation is None:
@@ -458,8 +461,228 @@ def transfer_ownership(request: HttpRequest, id: int) -> JsonResponse:
     alliance_member.save()
     
     transferred_member.role = AllianceRole.OWNER
+    alliance.owner = transferred_member.nation
+    alliance.save()
     transferred_member.save()
 
     return build_success_response(
         f"Transferred ownership of {transferred_member.alliance.name} to {transferred_nation.name}!", HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json(
+    ("id", int)
+)
+def send_ally_request(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    receiving_alliance = Alliance.objects.filter(pk=id).first()
+
+    if receiving_alliance is None:
+        return build_error_response(
+            "The alliance you are trying to request doesn't exist!", HTTPStatus.BAD_REQUEST
+        )
+    
+    alliance = alliance_member.alliance
+
+    if receiving_alliance == alliance:
+        return build_error_response(
+            "You cannot send a request to yourself!", HTTPStatus.BAD_REQUEST
+        )
+    
+    exisiting_request = AllianceAllyRequest.objects.filter(requesting_alliance=alliance, alliance=receiving_alliance).first()
+
+    if exisiting_request is not None:
+        return build_error_response(
+            "You already sent a request!", HTTPStatus.BAD_REQUEST
+        )
+    
+    alliance_request = AllianceAllyRequest.objects.create(
+        timestamp=time.time(),
+        requesting_alliance=alliance,
+        alliance=receiving_alliance
+    )
+
+    return build_success_response(
+        "Successfully sent ally request!", HTTPStatus.CREATED
+    )
+
+@needs_nation
+@require_http_methods(["GET"])
+@parse_json(
+    ("page", int),
+    ("amount", int)
+)
+def get_ally_requests(request: HttpRequest, page: int, amount: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    offset = page * amount
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    ally_requests = AllianceAllyRequest.objects.filter(alliance=alliance_member.alliance).order_by("-timestamp")[offset:offset+amount]
+    ally_requests_list = [ally_request.to_dict() for ally_request in ally_requests]
+
+    return build_success_response(
+        ally_requests_list, HTTPStatus.OK, safe=False
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json(
+    ("id", int)
+)
+def accept_ally_request(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    ally_request = AllianceAllyRequest.objects.filter(pk=id).first()
+
+    if ally_request is None:
+        return build_error_response(
+            "The ally request does not exist!", HTTPStatus.BAD_REQUEST
+        )
+    
+    AllianceAlly.objects.create(
+        requester=ally_request.requesting_alliance,
+        acceptor=ally_request.alliance
+    )
+
+    ally_request.delete()
+
+    return build_success_response(
+        "Successfully accepted ally request!", HTTPStatus.CREATED
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json(
+    ("id", int)
+)
+def deny_ally_request(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    ally_request = AllianceAllyRequest.objects.filter(pk=id).first()
+
+    ally_request.delete()
+
+    return build_success_response(
+        "Successfully denied ally request!", HTTPStatus.OK
+    )
+
+@needs_nation
+@require_http_methods(["POST"])
+@parse_json(
+    ("id", int)
+)
+def declare_enemy(request: HttpRequest, id: int) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None or alliance_member.role < AllianceRole.ADMIN:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    enemy_alliance = Alliance.objects.filter(pk=id).first()
+
+    if enemy_alliance is None:
+        return build_error_response(
+            "The alliance does not exist!", HTTPStatus.BAD_REQUEST
+        )
+    
+    existing_enemy = AllianceEnemy.objects.filter(enemy=enemy_alliance).first()
+
+    if existing_enemy is not None:
+        return build_error_response(
+            "You are already enemies!", HTTPStatus.BAD_REQUEST
+        )
+    
+    AllianceEnemy.objects.create(
+        aggressor=alliance_member.alliance,
+        enemy=enemy_alliance
+    )
+
+    return build_success_response(
+        "Successfully created an enemy!", HTTPStatus.CREATED
+    )
+
+@needs_nation
+@require_http_methods(["GET"])
+@parse_json(
+    ("page", int),
+    ("amount", int),
+    ("relation", str)
+)
+def get_alliance_relations(request: HttpRequest, page: int, amount: int, relation: str) -> JsonResponse:
+    user: User = request.user
+    nation: Nation = user.nation
+
+    alliance_member = AllianceMember.objects.filter(nation=nation).first()
+
+    if alliance_member is None:
+        return build_error_response(
+            "You are unauthorized to do this!", HTTPStatus.UNAUTHORIZED
+        )
+    
+    offset = page * amount
+
+    alliance: Alliance = alliance_member.alliance
+
+    match relation:
+        case "enemies":
+            enemies = AllianceEnemy.objects.filter(aggressor=alliance)[offset:offset+amount]
+            enemies_list = [enemy.enemy.to_dict() for enemy in enemies]
+
+            return build_success_response(
+                enemies_list, HTTPStatus.CREATED, safe=False
+            )
+
+        case "allies":
+            allies = AllianceAlly.objects.filter(Q(requester=alliance) | Q(acceptor=alliance))[offset:offset+amount]
+            allies_list = [ally.acceptor.to_dict() if ally.acceptor != alliance else ally.requester.to_dict() for ally in allies]
+
+            return build_success_response(
+                allies_list, HTTPStatus.CREATED, safe=False
+            )
+        
+        case _:
+            return build_error_response(
+                "Unknown relation type!", HTTPStatus.BAD_REQUEST
+            )
+
+    return build_success_response(
+        "Successfully created an enemy!", HTTPStatus.CREATED
     )

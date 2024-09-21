@@ -1,7 +1,7 @@
 from .factories import NationFactory
 from .nation import Nation
 from .user import User, Notification
-from .alliance import Alliance, AllianceMember, AllianceRequest, AllianceShout, AllianceRole
+from .alliance import Alliance, AllianceMember, AllianceRequest, AllianceShout, AllianceRole, AllianceAlly, AllianceAllyRequest, AllianceEnemy
 from .building import NationBuilding
 from .upgrades import NationUpgrade
 from .military import NationDivision, DivisionUnit

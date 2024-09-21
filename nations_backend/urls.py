@@ -64,6 +64,12 @@ from .views import (
     kick_member,
     promote_member,
     demote_member,
+    get_alliance_relations,
+    get_ally_requests,
+    deny_ally_request,
+    accept_ally_request,
+    declare_enemy,
+    send_ally_request,
 
     # Buildings views
     get_all_buildings,
@@ -118,6 +124,7 @@ urlpatterns = [
             path("get", get_alliance_by_id, name="get_alliance_by_id"),
             path("members", get_alliance_members, name="get_alliance_members"),
             path("leave", leave_alliance, name="leave_alliance"),
+            path("getrelations", get_alliance_relations, name="get_alliance_relations"),
 
             path("admin/", include([
                 path("shout", post_alliance_shout, name="post_alliance_shout"),
@@ -128,6 +135,11 @@ urlpatterns = [
                 path("kick", kick_member, name="kick_member"),
                 path("transfer", transfer_ownership, name="transfer_ownership"),
                 path("demote", demote_member, name="demote_member"),
+                path("getallyrequests", get_ally_requests, name="get_ally_requests"),
+                path("denyallyrequest", deny_ally_request, name="deny_ally_request"),
+                path("acceptallyrequest", accept_ally_request, name="acceptallyrequest"),
+                path("declareenemy", declare_enemy, name="declare_enemy"),
+                path("sendallyrequest", send_ally_request, name="send_ally_request"),
             ]))
         ])),
 
