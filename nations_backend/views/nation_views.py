@@ -19,9 +19,10 @@ from ..upgrades import upgrade_manager
 @require_http_methods(["POST"])
 @parse_json(
     ("name", str),
-    ("system", int),
+    ("authority", int),
+    ("economic", int),
 )
-def create_nation(request: HttpRequest, name: str, system: int) -> JsonResponse:
+def create_nation(request: HttpRequest, name: str, authority: int, economic: int) -> JsonResponse:
     user: User = request.user
 
     if user.nation is not None:
@@ -31,7 +32,8 @@ def create_nation(request: HttpRequest, name: str, system: int) -> JsonResponse:
 
     nation: Nation = Nation.objects.create(
         name=name,
-        system=system,
+        authority=authority,
+        economic=economic,
         leader=user
     )
     
@@ -42,6 +44,7 @@ def create_nation(request: HttpRequest, name: str, system: int) -> JsonResponse:
         nation=nation,
         name="Reserve"
     )
+    reserves_divsion.save()
 
     return build_success_response(
         nation.to_dict(), HTTPStatus.CREATED

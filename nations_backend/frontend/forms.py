@@ -16,5 +16,5 @@ class NationCreateForm(forms.ModelForm):
     class Meta:
         model = Nation
         fields = [
-            "name", "system"
+            "name", "authority", "economic"
         ]

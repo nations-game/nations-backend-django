@@ -13,6 +13,8 @@ def parse_json(*type_list: tuple[str, object]):
                 except:
                     body_dict = dict(request.POST)
 
+                print(body_dict)
+
                 if "csrfmiddlewaretoken" in body_dict:
                     del body_dict["csrfmiddlewaretoken"]
 

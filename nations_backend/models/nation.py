@@ -26,14 +26,10 @@ class Nation(Model):
             MinValueValidator(-10),
             MaxValueValidator(10)
     ])
-
-    SYSTEM_CHOICES = (
-        (0, "Capitalism"),
-        (1, "Socialism"),
-        (2, "Dictatorship")
-    )
     
-    system = IntegerField(choices=SYSTEM_CHOICES) # 0 = capitalism, 1 = socialism, 2 = dictatorship
+    # Politcial Compass
+    authority = IntegerField(default=0)
+    economic = IntegerField(default=0)
     
     # Commodities
     money = IntegerField(default=100_000)
@@ -59,7 +55,6 @@ class Nation(Model):
         return {
             # basic info
             "name": self.name,
-            "system": self.system,
             "leaderID": self.leader_id,
             "nationID": self.id,
 
@@ -78,7 +73,11 @@ class Nation(Model):
             "land": self.land,
             "unusedLand": self.unused_land,
 
-            "allianceID": alliance_id
+            "allianceID": alliance_id,
+
+            # Political Compass
+            "authorityAxis": self.authority,
+            "economicAxis": self.economic
         }
     
     def get_factories(self):
